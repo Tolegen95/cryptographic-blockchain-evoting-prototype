@@ -1,6 +1,6 @@
 # Research Prototype: Cryptography-Supported Blockchain-Based Electronic Voting
 
-This repository contains the software prototype, benchmark scripts, synthetic experimental data, and generated benchmark artifacts used for a research study on a cryptography-supported blockchain-based electronic voting architecture.
+This repository contains the software prototype, benchmark scripts, synthetic experimental scenarios, and generated benchmark results used for a research study on a cryptography-supported blockchain-based electronic voting architecture.
 
 The prototype is intended for research reproducibility and experimental evaluation. It is not a production election system and must not be interpreted as ready for governmental or large-scale deployment.
 
@@ -39,12 +39,12 @@ The implementation is written in Python with Flask for the web interface and loc
 
 No real voter records, real election records, or personal electoral data are included in this repository.
 
-The files in `data/` contain synthetic prototype accounts and election scenarios. The files in `benchmarks/output/` contain locally generated benchmark outputs used to support the experimental discussion in the related manuscript.
+The files in `data/` contain synthetic prototype accounts and election scenarios. The files in `benchmarks/output/` contain locally generated benchmark results used to support the experimental discussion in the related manuscript.
 
 Suggested manuscript statement:
 
 ```text
-Data Availability Statement: The data presented in this study are available in the article and in this repository. The software prototype, benchmark scripts, synthetic experimental scenarios, and generated benchmark artifacts are included in the repository. No real personal voter data were used in this study.
+Data Availability Statement: The data presented in this study are available in the article and in this repository. The software prototype, benchmark scripts, synthetic experimental scenarios, and generated benchmark results are included in the repository. No real personal voter data were used in this study.
 ```
 
 ## Installation
