@@ -1,8 +1,8 @@
-# Research Prototype: Blockchain-Based Electronic Voting
+# Research Prototype: Cryptography-Supported Blockchain-Based Electronic Voting
 
-This repository contains the software prototype, benchmark scripts, synthetic experimental data, and documentation artifacts used for a research study on a cryptography-supported electronic voting architecture.
+This repository contains the software prototype, benchmark scripts, synthetic experimental data, and generated benchmark artifacts used for a research study on a cryptography-supported blockchain-based electronic voting architecture.
 
-The prototype is intended for research and reproducibility. It is not a production election system and must not be interpreted as ready for governmental or large-scale deployment.
+The prototype is intended for research reproducibility and experimental evaluation. It is not a production election system and must not be interpreted as ready for governmental or large-scale deployment.
 
 ## Overview
 
@@ -33,8 +33,6 @@ The implementation is written in Python with Flask for the web interface and loc
 - `data/` - synthetic election and voter-account seed data.
 - `benchmarks/` - benchmark runners and report-generation scripts.
 - `benchmarks/output/` - generated CSV, JSON, HTML, and SVG benchmark artifacts.
-- `docs/` - research notes, methodology, threat model, security discussion, and article-supporting materials.
-- `docs/figures/` - generated article figures.
 - `tests/` - unit and web-flow tests.
 
 ## Data Availability
@@ -46,7 +44,7 @@ The files in `data/` contain synthetic prototype accounts and election scenarios
 Suggested manuscript statement:
 
 ```text
-Data Availability Statement: The data presented in this study are available in the article and in this repository. The software prototype, benchmark scripts, synthetic experimental scenarios, generated benchmark artifacts, and supporting documentation are included in the repository. No real personal voter data were used in this study.
+Data Availability Statement: The data presented in this study are available in the article and in this repository. The software prototype, benchmark scripts, synthetic experimental scenarios, and generated benchmark artifacts are included in the repository. No real personal voter data were used in this study.
 ```
 
 ## Installation
@@ -108,12 +106,6 @@ Important generated files include:
 - `benchmarks/output/benchmark_latency.svg`
 - `benchmarks/output/benchmark_threshold_overhead.svg`
 
-The methodology and interpretation are documented in:
-
-- `docs/experiment_methodology.md`
-- `docs/benchmark_analysis.md`
-- `docs/experimental_results.md`
-
 ## Testing
 
 Run the available tests with:
@@ -130,12 +122,7 @@ python3 -m unittest tests.test_attacks
 
 ## Security Scope
 
-This repository is a research prototype. The security claims are limited to the implemented experimental model and should be read together with:
-
-- `docs/threat_model.md`
-- `docs/security_properties.md`
-- `docs/defense_claims.md`
-- `docs/defense_readiness.md`
+This repository is a research prototype. The security claims are limited to the implemented experimental model.
 
 Known scope limitations include:
 
