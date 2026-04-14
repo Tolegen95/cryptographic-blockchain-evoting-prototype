@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .login-shell {
+    max-width: 620px;
+    margin: 0 auto;
+    display: grid;
+    gap: 0;
+    align-items: start;
+  }
+
+  .login-form-grid {
+    display: grid;
+    gap: 16px;
+  }
+
+  .login-lead {
+    display: grid;
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .login-flow {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .flow-card {
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: var(--radius-md);
+    padding: 12px;
+  }
+
+  .login-input {
+    min-height: 54px;
+    padding: 14px 16px;
+    font-size: 16px;
+  }
+
+  .login-primary {
+    min-height: 54px;
+    font-size: 15px;
+    font-weight: 700;
+    width: 100%;
+  }
+
+  .login-card {
+    padding: 28px;
+  }
+
+  .login-note {
+    margin-top: 14px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  @media (max-width: 900px) {
+    .login-shell {
+      grid-template-columns: 1fr;
+    }
+
+    .login-flow {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="login-shell">
+  <div class="panel panel-strong login-card">
+    <p class="eyebrow">Authentication</p>
+    <h2 class="section-title">Login to vote</h2>
+    <p class="compact-meta">Enter your voter ID and PIN to start a secure voting session.</p>
+
+    <div class="login-lead">
+      <div class="status-note ok">Sign in first. Voting and verification happen on the next screens.</div>
+      <div class="login-flow">
+        <div class="flow-card">
+          <div class="compact-meta">1. Sign in</div>
+          <strong>Open your session</strong>
+        </div>
+        <div class="flow-card">
+          <div class="compact-meta">2. Vote securely</div>
+          <strong>Cast one protected vote</strong>
+        </div>
+        <div class="flow-card">
+          <div class="compact-meta">3. Verify</div>
+          <strong>Check that your vote was recorded</strong>
+        </div>
+      </div>
+    </div>
+
+    <form action="/login" method="post" class="login-form-grid" style="margin-top: 18px;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <div>
+        <label for="voter_id" style="display: block; margin-bottom: 8px;">Voter ID</label>
+        <input class="login-input" id="voter_id" name="voter_id" placeholder="Enter voter ID" required>
+      </div>
+      <div>
+        <label for="pin" style="display: block; margin-bottom: 8px;">PIN</label>
+        <input class="login-input" id="pin" type="password" name="pin" placeholder="Enter PIN" required>
+      </div>
+      <div>
+        <input class="login-primary" type="submit" value="Open Voting Session">
+      </div>
+    </form>
+    {% if show_demo_credentials %}
+    <p class="login-note">Demo accounts are loaded from <span class="mono">data/voters.json</span>.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

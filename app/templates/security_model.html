@@ -1,0 +1,540 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .security-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+    gap: 20px;
+    align-items: start;
+  }
+
+  .model-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .model-card {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    padding: 14px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-card);
+  }
+
+  .wide-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .status-chip {
+    display: inline-block;
+    padding: 4px 8px;
+    border: 1px solid var(--line);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-radius: 999px;
+    background: #fff;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .summary-card {
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.88);
+    border-radius: var(--radius-md);
+    padding: 14px;
+  }
+
+  .summary-value {
+    font-size: 24px;
+    line-height: 1;
+    margin-top: 8px;
+  }
+
+  .chart-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .chart-row {
+    display: grid;
+    gap: 6px;
+  }
+
+  .chart-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 14px;
+  }
+
+  .chart-track {
+    width: 100%;
+    height: 12px;
+    border-radius: 999px;
+    background: #e7dfcf;
+    overflow: hidden;
+  }
+
+  .chart-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #1f5c57 0%, #6e948c 100%);
+  }
+
+  .chart-fill.warn {
+    background: linear-gradient(90deg, #c4872f 0%, #d7aa63 100%);
+  }
+
+  .chart-fill.danger {
+    background: linear-gradient(90deg, #a34f41 0%, #d58b78 100%);
+  }
+
+  .chart-footnote {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .overview-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 250px;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .legend-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .legend-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.82);
+    font-size: 13px;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    display: inline-block;
+  }
+
+  .legend-dot.ok {
+    background: #2f6d68;
+  }
+
+  .legend-dot.warn {
+    background: #c4872f;
+  }
+
+  .legend-dot.danger {
+    background: #a34f41;
+  }
+
+  .radar-card {
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: var(--radius-md);
+    padding: 12px;
+  }
+
+  .radar-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .compare-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .compare-row {
+    display: grid;
+    gap: 8px;
+  }
+
+  .compare-bars {
+    display: grid;
+    gap: 6px;
+  }
+
+  .compare-labels {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  @media (max-width: 980px) {
+    .security-layout,
+    .model-grid,
+    .wide-grid,
+    .summary-grid,
+    .overview-hero {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="security-layout">
+  <div style="display: grid; gap: 18px;">
+    <div class="panel panel-strong">
+      <p class="eyebrow">Security Model</p>
+      <div class="overview-hero">
+        <div>
+          <h2 class="section-title">Formal properties and threat assumptions</h2>
+          <p class="compact-meta">This page shows what the prototype guarantees, what is missing, and where risks remain.</p>
+          <div class="status-note ok" style="margin-top: 14px;">
+            Use this page to explain formal coverage, missing protocol layers, and current limits.
+          </div>
+          <div class="legend-row">
+            <span class="legend-chip"><span class="legend-dot ok"></span>Covered / stronger areas</span>
+            <span class="legend-chip"><span class="legend-dot warn"></span>Partial / missing protocol layers</span>
+            <span class="legend-chip"><span class="legend-dot danger"></span>Residual risk concentration</span>
+          </div>
+        </div>
+        <div class="radar-card">
+          <p class="eyebrow" style="margin-bottom: 8px;">Overview Radar</p>
+          <svg class="radar-svg" viewBox="0 0 {{ security_overview_radar.width }} {{ security_overview_radar.height }}">
+            {% for ring in security_overview_radar.rings %}
+            <polygon points="{{ ring }}" fill="none" stroke="#d7cfbf" stroke-width="1"></polygon>
+            {% endfor %}
+            <line x1="{{ security_overview_radar.center_x }}" y1="{{ security_overview_radar.center_y }}" x2="{{ security_overview_radar.center_x }}" y2="{{ security_overview_radar.center_y - security_overview_radar.radius }}" stroke="#d7cfbf" stroke-width="1"></line>
+            <line x1="{{ security_overview_radar.center_x }}" y1="{{ security_overview_radar.center_y }}" x2="{{ security_overview_radar.center_x + security_overview_radar.radius }}" y2="{{ security_overview_radar.center_y }}" stroke="#d7cfbf" stroke-width="1"></line>
+            <line x1="{{ security_overview_radar.center_x }}" y1="{{ security_overview_radar.center_y }}" x2="{{ security_overview_radar.center_x }}" y2="{{ security_overview_radar.center_y + security_overview_radar.radius }}" stroke="#d7cfbf" stroke-width="1"></line>
+            <line x1="{{ security_overview_radar.center_x }}" y1="{{ security_overview_radar.center_y }}" x2="{{ security_overview_radar.center_x - security_overview_radar.radius }}" y2="{{ security_overview_radar.center_y }}" stroke="#d7cfbf" stroke-width="1"></line>
+            <polygon points="{{ security_overview_radar.polygon }}" fill="rgba(31,92,87,0.18)" stroke="#1f5c57" stroke-width="2"></polygon>
+            {% for label in security_overview_radar.labels %}
+            <text x="{{ '%.2f'|format(label.x) }}" y="{{ '%.2f'|format(label.y) }}" text-anchor="middle" font-size="10" fill="#5f6d67">{{ label.label }}</text>
+            {% endfor %}
+          </svg>
+        </div>
+      </div>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="compact-meta">Strong properties</div>
+          <div class="summary-value">{{ security_model_overview.strong_properties }}/{{ security_model_overview.total_properties }}</div>
+        </div>
+        <div class="summary-card">
+          <div class="compact-meta">Covered properties</div>
+          <div class="summary-value">{{ security_model_overview.covered_properties }}/{{ security_model_overview.total_properties }}</div>
+        </div>
+        <div class="summary-card">
+          <div class="compact-meta">Missing protocols</div>
+          <div class="summary-value">{{ security_model_overview.missing_protocols }}/{{ security_model_overview.total_protocol_gaps }}</div>
+        </div>
+        <div class="summary-card">
+          <div class="compact-meta">Moderate+ risks</div>
+          <div class="summary-value">{{ security_model_overview.moderate_plus_risks }}/{{ security_model_overview.total_risks }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="eyebrow">Security Properties</p>
+      <div class="chart-list" style="margin-bottom: 14px;">
+        {% for property in security_property_chart_rows %}
+        <div class="chart-row">
+          <div class="chart-head">
+            <span>{{ property.name }}</span>
+            <strong>{{ property.score }}%</strong>
+          </div>
+          <div class="chart-track">
+            <div class="chart-fill" style="width: {{ property.score }}%;"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="model-grid">
+        {% for property in security_properties %}
+        <div class="model-card">
+          <span class="status-chip">{{ property.status }}</span>
+          <div style="margin-top: 8px;"><strong>{{ property.name }}</strong></div>
+          <div class="compact-meta" style="margin-top: 8px;">{{ property.note }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <details class="disclosure">
+      <summary>Missing protocols and residual vulnerability surface</summary>
+      <div class="disclosure-body stack-list">
+        <div>
+          <p class="eyebrow">Missing Protocols</p>
+          <div class="chart-list" style="margin-bottom: 14px;">
+            {% for item in missing_protocol_chart_rows %}
+            <div class="chart-row">
+              <div class="chart-head">
+                <span>{{ item.name }}</span>
+                <strong>{{ item.gap_score }}%</strong>
+              </div>
+              <div class="chart-track">
+                <div class="chart-fill warn" style="width: {{ item.gap_score }}%;"></div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="wide-grid">
+            {% for item in missing_protocols %}
+            <div class="model-card">
+              <span class="status-chip">{{ item.status }}</span>
+              <div style="margin-top: 8px;"><strong>{{ item.name }}</strong></div>
+              <div class="compact-meta" style="margin-top: 8px;">{{ item.why }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div>
+          <p class="eyebrow">Vulnerability Surface</p>
+          <div class="chart-list" style="margin-bottom: 14px;">
+            {% for item in vulnerability_chart_rows %}
+            <div class="chart-row">
+              <div class="chart-head">
+                <span>{{ item.name }}</span>
+                <strong>{{ item.severity_score }}%</strong>
+              </div>
+              <div class="chart-track">
+                <div class="chart-fill danger" style="width: {{ item.severity_score }}%;"></div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="wide-grid">
+            {% for item in vulnerability_surface %}
+            <div class="model-card">
+              <span class="status-chip">{{ item.severity }}</span>
+              <div style="margin-top: 8px;"><strong>{{ item.name }}</strong></div>
+              <div class="compact-meta" style="margin-top: 8px;">{{ item.note }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <div style="display: grid; gap: 18px;">
+    <div class="panel">
+      <p class="eyebrow">Current vs Target</p>
+      <div class="compare-grid">
+        {% for item in security_target_comparison %}
+        <div class="compare-row">
+          <div class="chart-head">
+            <span>{{ item.name }}</span>
+            <strong>{{ item.current }}% -> {{ item.target }}%</strong>
+          </div>
+          <div class="compare-bars">
+            <div>
+              <div class="compare-labels">
+                <span>Current prototype</span>
+                <span>{{ item.current }}%</span>
+              </div>
+              <div class="chart-track">
+                <div class="chart-fill" style="width: {{ item.current }}%;"></div>
+              </div>
+            </div>
+            <div>
+              <div class="compare-labels">
+                <span>Production target</span>
+                <span>{{ item.target }}%</span>
+              </div>
+              <div class="chart-track">
+                <div class="chart-fill warn" style="width: {{ item.target }}%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="chart-footnote">This comparison helps explain what the prototype already covers and what must still be strengthened for production-grade deployment.</div>
+    </div>
+
+    <div class="panel">
+      <p class="eyebrow">Why Not Production Yet</p>
+      <div class="model-grid" style="grid-template-columns: 1fr;">
+        {% for item in production_gaps %}
+        <div class="model-card">
+          <strong>{{ item.name }}</strong>
+          <div class="compact-meta" style="margin-top: 8px;">{{ item.note }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="eyebrow">Experimental Scale Framing</p>
+      <table>
+        <tr>
+          <th>Scale</th>
+          <th>Purpose</th>
+          <th>Method</th>
+          <th>Interpretation</th>
+        </tr>
+        {% for row in experiment_scale_table %}
+        <tr>
+          <td>{{ row.scale }}</td>
+          <td>{{ row.purpose }}</td>
+          <td>{{ row.method }}</td>
+          <td>{{ row.interpretation }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+
+    <div class="panel">
+      <p class="eyebrow">Threat Model</p>
+      <div class="model-grid" style="grid-template-columns: 1fr;">
+        {% for threat in threat_cards %}
+        <div class="model-card">
+          <strong>{{ threat.name }}</strong>
+          <div class="compact-meta" style="margin-top: 8px;">{{ threat.mitigation }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <details class="disclosure">
+      <summary>Measured performance and model-based scalability projection</summary>
+      <div class="disclosure-body stack-list">
+        <div>
+          <p class="eyebrow">Measured Prototype Performance</p>
+          <div class="status-note warn" style="margin-bottom: 14px;">
+            Real benchmark executions currently exist only for small prototype scales
+            {% if performance_honesty_summary.measured_min_scale and performance_honesty_summary.measured_max_scale %}
+            from {{ performance_honesty_summary.measured_min_scale }} to {{ performance_honesty_summary.measured_max_scale }} voters.
+            {% endif %}
+          </div>
+          {% if benchmark_rows %}
+          <table>
+            <tr>
+              <th>Voters</th>
+              <th>Cast</th>
+              <th>Mine</th>
+              <th>Threshold Tally</th>
+            </tr>
+            {% for row in benchmark_rows %}
+            <tr>
+              <td>{{ row.voter_count }}</td>
+              <td>{{ '%.4f'|format(row.cast_mean) }}s</td>
+              <td>{{ '%.4f'|format(row.mine_mean) }}s</td>
+              <td>{{ '%.4f'|format(row.get('homomorphic_results_time', row.tally_time)) }}s</td>
+            </tr>
+            {% endfor %}
+          </table>
+          {% if comparison_summary %}
+          <div class="compact-meta" style="margin-top: 12px;">
+            Threshold tally endpoint time at the largest measured scale of {{ comparison_summary.largest_scale }} voters is
+            {{ '%.4f'|format(comparison_summary.largest_threshold_time) }}s, compared with
+            {{ '%.4f'|format(comparison_summary.largest_baseline_time) }}s for the simpler baseline endpoint.
+          </div>
+          <div class="compact-meta" style="margin-top: 8px;">
+            {{ performance_honesty_summary.threshold_overhead_note }}
+          </div>
+          {% endif %}
+          {% else %}
+          <div class="status-note warn">No benchmark data available.</div>
+          {% endif %}
+        </div>
+
+        <div>
+          <p class="eyebrow">Model-Based Projection</p>
+          <div class="status-note warn" style="margin-bottom: 14px;">
+            These values are projections, not direct benchmark executions. They are useful for discussion of trend direction, but not as proof of production-scale throughput.
+          </div>
+          {% if scalability_chart_rows %}
+          <div class="chart-list" style="margin-bottom: 14px;">
+            {% for row in scalability_chart_rows %}
+            <div class="chart-row">
+              <div class="chart-head">
+                <span>{{ "{:,}".format(row.voter_count) }} voters</span>
+                <strong>Mine {{ '%.0f'|format(row.mine_ratio) }}% / Threshold results {{ '%.0f'|format(row.homomorphic_ratio) }}%</strong>
+              </div>
+              <div class="chart-track" style="margin-bottom: 6px;">
+                <div class="chart-fill" style="width: {{ '%.2f'|format(row.mine_ratio) }}%;"></div>
+              </div>
+              <div class="chart-track">
+                <div class="chart-fill warn" style="width: {{ '%.2f'|format(row.homomorphic_ratio) }}%;"></div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="chart-footnote">Top bar shows relative mining growth. Bottom bar shows relative threshold/homomorphic results growth across projected scales.</div>
+          {% endif %}
+          {% if projection_rows %}
+          <table>
+            <tr>
+              <th>Projected voters</th>
+              <th>Estimated mine time</th>
+              <th>Estimated threshold results time</th>
+              <th>Estimated baseline tally time</th>
+              <th>Estimated total cast workload</th>
+            </tr>
+            {% for row in projection_rows %}
+            <tr>
+              <td>{{ "{:,}".format(row.voter_count) }}</td>
+              <td>{{ '%.2f'|format(row.mine_mean) }}s</td>
+              <td>{{ '%.2f'|format(row.homomorphic_results_time) }}s</td>
+              <td>{{ '%.2f'|format(row.tally_time) }}s</td>
+              <td>{{ '%.2f'|format(row.cast_total_estimate) }}s</td>
+            </tr>
+            {% endfor %}
+          </table>
+          {% if scalability_summary %}
+          <div class="compact-meta" style="margin-top: 12px;">
+            Largest modeled scale:
+            {{ "{:,}".format(scalability_summary.largest_scale) }} voters,
+            estimated mining {{ '%.2f'|format(scalability_summary.mine_mean) }}s,
+            estimated threshold results {{ '%.2f'|format(scalability_summary.homomorphic_results_time) }}s,
+            estimated baseline tally {{ '%.4f'|format(scalability_summary.tally_time) }}s.
+          </div>
+          <div class="compact-meta" style="margin-top: 8px;">
+            {{ performance_honesty_summary.projection_note }}
+          </div>
+          <div class="compact-meta" style="margin-top: 8px;">
+            {{ performance_honesty_summary.homomorphic_projection_note }}
+          </div>
+          {% if performance_honesty_summary.tally_projection_note %}
+          <div class="compact-meta" style="margin-top: 8px;">
+            {{ performance_honesty_summary.tally_projection_note }}
+          </div>
+          {% endif %}
+          {% endif %}
+          {% else %}
+          <div class="status-note warn">No scalability projection data available.</div>
+          {% endif %}
+        </div>
+      </div>
+    </details>
+
+    <div class="panel">
+      <p class="eyebrow">Navigation</p>
+      <div style="display: grid; gap: 10px;">
+        <a href="{{ url_for('index') }}"><button type="button">Back to Protocol</button></a>
+        <a href="{{ url_for('research_dashboard') }}"><button type="button">Open Research Dashboard</button></a>
+      </div>
+      <p class="compact-meta" style="margin-top: 12px;">Session: {{ voter_id }} ({{ role }})</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

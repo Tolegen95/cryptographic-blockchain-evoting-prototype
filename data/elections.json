@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Research Prototype Election",
+    "status": "active",
+    "security_profile": "high_assurance",
+    "starts_at": null,
+    "ends_at": null,
+    "options": [
+      "Democratic Party",
+      "Republican Party",
+      "Socialist Party"
+    ]
+  }
+]

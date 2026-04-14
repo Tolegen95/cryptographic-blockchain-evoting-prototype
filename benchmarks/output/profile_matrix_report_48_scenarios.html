@@ -1,0 +1,1357 @@
+
+    <!doctype html>
+    <html lang="ru">
+    <head>
+      <meta charset="utf-8"/>
+      <title>Constructor Profile Benchmark</title>
+      <style>
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          margin: 0;
+          background: #f6f4ee;
+          color: #243330;
+        }
+        .wrap {
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 32px;
+        }
+        .hero {
+          background: linear-gradient(135deg, #e8efe7, #f8f4e9);
+          border: 1px solid #d5d0c2;
+          border-radius: 20px;
+          padding: 24px 28px;
+        }
+        .progress {
+          margin-top: 16px;
+          background: #e1ddd1;
+          border-radius: 999px;
+          overflow: hidden;
+          height: 16px;
+        }
+        .progress > div {
+          height: 100%;
+          width: 100.00%;
+          background: linear-gradient(90deg, #1f5c57, #7aa08f);
+        }
+        .grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 16px;
+          margin-top: 24px;
+        }
+        .card {
+          background: white;
+          border: 1px solid #d7d1c5;
+          border-radius: 18px;
+          padding: 18px;
+        }
+        .mechanism-list {
+          margin: 12px 0 0;
+          padding-left: 18px;
+        }
+        .mechanism-list li {
+          margin-top: 6px;
+          line-height: 1.4;
+        }
+        .viz-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          gap: 16px;
+          margin-top: 24px;
+        }
+        .viz-card {
+          background: white;
+          border: 1px solid #d7d1c5;
+          border-radius: 18px;
+          padding: 18px;
+          margin-top: 24px;
+        }
+        .bar-row {
+          margin-top: 14px;
+        }
+        .bar-meta {
+          display: flex;
+          justify-content: space-between;
+          gap: 10px;
+          font-size: 14px;
+          margin-bottom: 6px;
+        }
+        .bar-label {
+          font-weight: 600;
+        }
+        .bar-track {
+          background: #ece7db;
+          height: 14px;
+          border-radius: 999px;
+          overflow: hidden;
+        }
+        .bar-fill {
+          height: 100%;
+          border-radius: 999px;
+        }
+        .chart-svg {
+          width: 100%;
+          height: auto;
+          display: block;
+          margin-top: 10px;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 28px;
+          background: white;
+          border-radius: 18px;
+          overflow: hidden;
+        }
+        th, td {
+          padding: 12px 10px;
+          border-bottom: 1px solid #ece7db;
+          font-size: 14px;
+          text-align: left;
+        }
+        th {
+          background: #f1ede3;
+          position: sticky;
+          top: 0;
+        }
+        .compact-table {
+          margin-top: 14px;
+        }
+        .compact-table th, .compact-table td {
+          text-align: center;
+          font-size: 13px;
+          position: static;
+        }
+        .compact-table th:first-child, .compact-table td:first-child {
+          text-align: left;
+        }
+        .cell-sub {
+          color: #5c6d69;
+          font-size: 11px;
+          margin-top: 4px;
+        }
+        .meta {
+          color: #5c6d69;
+          font-size: 14px;
+        }
+        .note {
+          margin-top: 20px;
+          background: #fffdf8;
+          border-left: 4px solid #b8793f;
+          padding: 16px 18px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="wrap">
+        <section class="hero">
+          <h1>Визуальный benchmark конструктора голосования</h1>
+          <p class="meta">Статус: <strong>completed</strong> | Начало: 2026-03-27T00:57:56 | Завершено сценариев: 48/48</p>
+          <div class="progress"><div></div></div>
+          <p class="meta">Отчет обновляется после каждого завершенного сценария. Если открыт в браузере, обновите страницу для просмотра нового состояния.</p>
+        </section>
+        <section class="grid">
+          
+            <div class="card">
+              <h3>basic</h3>
+              <p>12 scenarios</p>
+              <p>Среднее полное время: <strong>0.452s</strong></p>
+              <p>Среднее время подачи: <strong>0.050s</strong></p>
+              <p>Доминирующее узкое место: <strong>auth_total</strong></p>
+            </div>
+            
+            <div class="card">
+              <h3>standard</h3>
+              <p>12 scenarios</p>
+              <p>Среднее полное время: <strong>21.390s</strong></p>
+              <p>Среднее время подачи: <strong>8.491s</strong></p>
+              <p>Доминирующее узкое место: <strong>cast_total</strong></p>
+            </div>
+            
+            <div class="card">
+              <h3>high_assurance</h3>
+              <p>12 scenarios</p>
+              <p>Среднее полное время: <strong>21.501s</strong></p>
+              <p>Среднее время подачи: <strong>8.239s</strong></p>
+              <p>Доминирующее узкое место: <strong>cast_total</strong></p>
+            </div>
+            
+            <div class="card">
+              <h3>maximum_protection</h3>
+              <p>12 scenarios</p>
+              <p>Среднее полное время: <strong>22.277s</strong></p>
+              <p>Среднее время подачи: <strong>8.471s</strong></p>
+              <p>Доминирующее узкое место: <strong>cast_total</strong></p>
+            </div>
+            
+        </section>
+        
+    <section class="viz-card">
+      <h2>Профили и используемые механизмы</h2>
+      <p class="meta">Ниже показано, какие протоколы и блокчейн-компоненты реально включаются в каждом профиле конструктора.</p>
+      <div class="grid">
+        
+            <div class="card">
+              <h3>basic</h3>
+              <p>Базовый режим с аутентифицированной записью голоса в блокчейн.</p>
+              <p><strong>Режим:</strong> simple</p>
+              <p><strong>Threshold-контур:</strong> не используется</p>
+              <ul class="mechanism-list">
+                <li>Реестр избирателей и аутентификация по PIN</li><li>Открытая запись выбора в blockchain audit trail</li><li>Проверка целостности цепочки и публикация базового результата</li>
+              </ul>
+            </div>
+            
+            <div class="card">
+              <h3>standard</h3>
+              <p>Анонимный токен, зашифрованный бюллетень и базовая публикация результата.</p>
+              <p><strong>Режим:</strong> encrypted</p>
+              <p><strong>Threshold-контур:</strong> не используется</p>
+              <ul class="mechanism-list">
+                <li>Blind-signature token issuance</li><li>Зашифрованный бюллетень и квитанционная проверка</li><li>Blockchain bulletin board и базовая публикация результата</li>
+              </ul>
+            </div>
+            
+            <div class="card">
+              <h3>high_assurance</h3>
+              <p>Blind signature, encrypted ballot, homomorphic tally и threshold evidence 2-of-3.</p>
+              <p><strong>Режим:</strong> encrypted</p>
+              <p><strong>Threshold-контур:</strong> 2-of-3</p>
+              <ul class="mechanism-list">
+                <li>Blind-signature authorization</li><li>Encrypted ballot и one-hot proof-bearing ballot validation</li><li>Homomorphic tally и threshold-supported publication 2-of-3</li><li>Blockchain audit trail, bulletin board и validation endpoints</li>
+              </ul>
+            </div>
+            
+            <div class="card">
+              <h3>maximum_protection</h3>
+              <p>Усиленный пороговый контур с конфигурацией 3-of-5.</p>
+              <p><strong>Режим:</strong> encrypted</p>
+              <p><strong>Threshold-контур:</strong> 3-of-5</p>
+              <ul class="mechanism-list">
+                <li>Blind-signature authorization</li><li>Encrypted ballot и proof-bearing ballot validation</li><li>Homomorphic tally и усиленный threshold-supported publication 3-of-5</li><li>Blockchain audit trail, bulletin board и chain validation</li>
+              </ul>
+            </div>
+            
+      </div>
+    </section>
+    
+        <section class="note">
+          <strong>Как читать отчет.</strong> Каждая строка ниже соответствует одному полному запуску профиля на фиксированной конфигурации числа кандидатов и голосующих. Столбец <em>bottleneck</em> показывает стадию, которая заняла наибольшее время и выступает узким местом сценария.
+        </section>
+        
+    <section class="viz-card">
+      <h3>Сравнительный график профилей</h3>
+      <p class="meta">График сопоставляет среднее полное время сценария и среднее время публикации результата для каждого профиля.</p>
+      
+    <svg viewBox="0 0 920 360" class="chart-svg" role="img" aria-label="Сравнительный график профилей">
+      <line x1="70" y1="310" x2="890" y2="310" stroke="#8a948f" stroke-width="1.5"/>
+      <line x1="70" y1="30" x2="70" y2="310" stroke="#8a948f" stroke-width="1.5"/>
+      <line x1="70" y1="310.0" x2="890" y2="310.0" stroke="#ddd6c8" stroke-width="1"/><text x="56" y="314.0" text-anchor="end" font-size="12" fill="#5c6d69">0.0</text><line x1="70" y1="250.0" x2="890" y2="250.0" stroke="#ddd6c8" stroke-width="1"/><text x="56" y="254.0" text-anchor="end" font-size="12" fill="#5c6d69">5.6</text><line x1="70" y1="190.0" x2="890" y2="190.0" stroke="#ddd6c8" stroke-width="1"/><text x="56" y="194.0" text-anchor="end" font-size="12" fill="#5c6d69">11.1</text><line x1="70" y1="130.0" x2="890" y2="130.0" stroke="#ddd6c8" stroke-width="1"/><text x="56" y="134.0" text-anchor="end" font-size="12" fill="#5c6d69">16.7</text><line x1="70" y1="70.0" x2="890" y2="70.0" stroke="#ddd6c8" stroke-width="1"/><text x="56" y="74.0" text-anchor="end" font-size="12" fill="#5c6d69">22.3</text>
+      <rect x="100" y="305.1273918002648" width="48" height="4.872608199735247" fill="#547a6a" rx="6"/><rect x="270" y="79.55465312920694" width="48" height="230.44534687079306" fill="#b8793f" rx="6"/><rect x="440" y="78.36006982619145" width="48" height="231.63993017380855" fill="#8e4b4b" rx="6"/><rect x="610" y="70.0" width="48" height="240.0" fill="#3f5f8e" rx="6"/>
+      <rect x="166" y="309.99308360281753" width="48" height="0.006916397182442625" fill="#d9a56a" rx="6"/><rect x="336" y="309.9937065621865" width="48" height="0.006293437813513818" fill="#d9a56a" rx="6"/><rect x="506" y="301.3301863068457" width="48" height="8.669813693154335" fill="#d9a56a" rx="6"/><rect x="676" y="298.862332217338" width="48" height="11.137667782662012" fill="#d9a56a" rx="6"/>
+      <text x="157.0" y="332" text-anchor="middle" font-size="12" fill="#243330">basic</text><text x="327.0" y="332" text-anchor="middle" font-size="12" fill="#243330">standard</text><text x="497.0" y="332" text-anchor="middle" font-size="12" fill="#243330">high_assurance</text><text x="667.0" y="332" text-anchor="middle" font-size="12" fill="#243330">maximum_protection</text>
+      <rect x="680" y="26" width="16" height="16" fill="#547a6a" rx="4"/>
+      <text x="704" y="39" font-size="12" fill="#243330">Среднее полное время</text>
+      <rect x="680" y="52" width="16" height="16" fill="#d9a56a" rx="4"/>
+      <text x="704" y="65" font-size="12" fill="#243330">Среднее время публикации результата</text>
+    </svg>
+    
+    </section>
+    
+        <section class="viz-grid">
+          
+    <section class="viz-card">
+      <h3>Среднее полное время сценария по профилям</h3>
+      
+            <div class="bar-row">
+              <div class="bar-meta">
+                <span class="bar-label">basic</span>
+                <span class="bar-value">0.452s</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:2.03%; background:#547a6a;"></div>
+              </div>
+            </div>
+            
+            <div class="bar-row">
+              <div class="bar-meta">
+                <span class="bar-label">standard</span>
+                <span class="bar-value">21.390s</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:96.02%; background:#b8793f;"></div>
+              </div>
+            </div>
+            
+            <div class="bar-row">
+              <div class="bar-meta">
+                <span class="bar-label">high_assurance</span>
+                <span class="bar-value">21.501s</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:96.52%; background:#8e4b4b;"></div>
+              </div>
+            </div>
+            
+            <div class="bar-row">
+              <div class="bar-meta">
+                <span class="bar-label">maximum_protection</span>
+                <span class="bar-value">22.277s</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:100.00%; background:#3f5f8e;"></div>
+              </div>
+            </div>
+            
+    </section>
+    
+    <section class="viz-card">
+      <h3>Среднее время подачи бюллетеня по профилям</h3>
+      
+            <div class="bar-row">
+              <div class="bar-meta">
+                <span class="bar-label">basic</span>
+                <span class="bar-value">0.050s</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:0.59%; background:#547a6a;"></div>
+              </div>
+            </div>
+            
+            <div class="bar-row">
+              <div class="bar-meta">
+                <span class="bar-label">standard</span>
+                <span class="bar-value">8.491s</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:100.00%; background:#b8793f;"></div>
+              </div>
+            </div>
+            
+            <div class="bar-row">
+              <div class="bar-meta">
+                <span class="bar-label">high_assurance</span>
+                <span class="bar-value">8.239s</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:97.03%; background:#8e4b4b;"></div>
+              </div>
+            </div>
+            
+            <div class="bar-row">
+              <div class="bar-meta">
+                <span class="bar-label">maximum_protection</span>
+                <span class="bar-value">8.471s</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:99.76%; background:#3f5f8e;"></div>
+              </div>
+            </div>
+            
+    </section>
+    
+    <section class="viz-card">
+      <h3>Среднее время публикации результата по профилям</h3>
+      
+            <div class="bar-row">
+              <div class="bar-meta">
+                <span class="bar-label">basic</span>
+                <span class="bar-value">0.001s</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:0.06%; background:#547a6a;"></div>
+              </div>
+            </div>
+            
+            <div class="bar-row">
+              <div class="bar-meta">
+                <span class="bar-label">standard</span>
+                <span class="bar-value">0.001s</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:0.06%; background:#b8793f;"></div>
+              </div>
+            </div>
+            
+            <div class="bar-row">
+              <div class="bar-meta">
+                <span class="bar-label">high_assurance</span>
+                <span class="bar-value">0.805s</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:77.84%; background:#8e4b4b;"></div>
+              </div>
+            </div>
+            
+            <div class="bar-row">
+              <div class="bar-meta">
+                <span class="bar-label">maximum_protection</span>
+                <span class="bar-value">1.034s</span>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:100.00%; background:#3f5f8e;"></div>
+              </div>
+            </div>
+            
+    </section>
+    
+        </section>
+        
+    <section class="viz-card">
+      <h3>Тепловая карта узких мест</h3>
+      <p class="meta">Число сценариев, в которых соответствующая стадия была самой дорогой для профиля.</p>
+      <table class="compact-table">
+        <thead>
+          <tr><th>Профиль</th><th>Auth</th><th>Token</th><th>Cast</th><th>Verify</th><th>Mine</th><th>Results</th><th>Homomorphic</th><th>Validate</th><th>Bulletin</th></tr>
+        </thead>
+        <tbody>
+          <tr><th>basic</th><td style="background:#c88f63;">12</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td></tr><tr><th>standard</th><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#c88f63;">12</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td></tr><tr><th>high_assurance</th><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#c88f63;">12</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td></tr><tr><th>maximum_protection</th><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#c88f63;">12</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td><td style="background:#eef4ef;">0</td></tr>
+        </tbody>
+      </table>
+    </section>
+    
+        
+            <section class="viz-card">
+              <h3>Матрица сценариев: basic</h3>
+              <p class="meta">Базовый режим с аутентифицированной записью голоса в блокчейн.</p>
+              <table class="compact-table">
+                <thead>
+                  <tr><th>Кандидаты \ Голосующие</th><th>3</th><th>5</th><th>10</th><th>25</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th>2</th><td style="background:#eef4ef;"><div>0.116s</div><div class="cell-sub">Auth</div></td><td style="background:#d8e8db;"><div>0.225s</div><div class="cell-sub">Auth</div></td><td style="background:#d8e8db;"><div>0.412s</div><div class="cell-sub">Auth</div></td><td style="background:#c88f63;"><div>1.022s</div><div class="cell-sub">Auth</div></td></tr><tr><th>3</th><td style="background:#eef4ef;"><div>0.111s</div><div class="cell-sub">Auth</div></td><td style="background:#d8e8db;"><div>0.230s</div><div class="cell-sub">Auth</div></td><td style="background:#d8e8db;"><div>0.401s</div><div class="cell-sub">Auth</div></td><td style="background:#c88f63;"><div>1.087s</div><div class="cell-sub">Auth</div></td></tr><tr><th>5</th><td style="background:#eef4ef;"><div>0.111s</div><div class="cell-sub">Auth</div></td><td style="background:#d8e8db;"><div>0.222s</div><div class="cell-sub">Auth</div></td><td style="background:#d8e8db;"><div>0.398s</div><div class="cell-sub">Auth</div></td><td style="background:#c88f63;"><div>1.093s</div><div class="cell-sub">Auth</div></td></tr>
+                </tbody>
+              </table>
+            </section>
+            
+            <section class="viz-card">
+              <h3>Матрица сценариев: standard</h3>
+              <p class="meta">Анонимный токен, зашифрованный бюллетень и базовая публикация результата.</p>
+              <table class="compact-table">
+                <thead>
+                  <tr><th>Кандидаты \ Голосующие</th><th>3</th><th>5</th><th>10</th><th>25</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th>2</th><td style="background:#eef4ef;"><div>4.465s</div><div class="cell-sub">Cast</div></td><td style="background:#eef4ef;"><div>7.486s</div><div class="cell-sub">Cast</div></td><td style="background:#d8e8db;"><div>15.568s</div><div class="cell-sub">Cast</div></td><td style="background:#d7bea0;"><div>38.482s</div><div class="cell-sub">Cast</div></td></tr><tr><th>3</th><td style="background:#eef4ef;"><div>5.917s</div><div class="cell-sub">Cast</div></td><td style="background:#eef4ef;"><div>9.279s</div><div class="cell-sub">Cast</div></td><td style="background:#d8e8db;"><div>18.513s</div><div class="cell-sub">Cast</div></td><td style="background:#d7bea0;"><div>48.323s</div><div class="cell-sub">Cast</div></td></tr><tr><th>5</th><td style="background:#eef4ef;"><div>7.729s</div><div class="cell-sub">Cast</div></td><td style="background:#d8e8db;"><div>12.652s</div><div class="cell-sub">Cast</div></td><td style="background:#bfd3c5;"><div>25.323s</div><div class="cell-sub">Cast</div></td><td style="background:#c88f63;"><div>62.944s</div><div class="cell-sub">Cast</div></td></tr>
+                </tbody>
+              </table>
+            </section>
+            
+            <section class="viz-card">
+              <h3>Матрица сценариев: high_assurance</h3>
+              <p class="meta">Blind signature, encrypted ballot, homomorphic tally и threshold evidence 2-of-3.</p>
+              <table class="compact-table">
+                <thead>
+                  <tr><th>Кандидаты \ Голосующие</th><th>3</th><th>5</th><th>10</th><th>25</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th>2</th><td style="background:#eef4ef;"><div>4.881s</div><div class="cell-sub">Cast</div></td><td style="background:#eef4ef;"><div>7.924s</div><div class="cell-sub">Cast</div></td><td style="background:#d8e8db;"><div>15.163s</div><div class="cell-sub">Cast</div></td><td style="background:#bfd3c5;"><div>37.262s</div><div class="cell-sub">Cast</div></td></tr><tr><th>3</th><td style="background:#eef4ef;"><div>6.185s</div><div class="cell-sub">Cast</div></td><td style="background:#eef4ef;"><div>9.771s</div><div class="cell-sub">Cast</div></td><td style="background:#d8e8db;"><div>18.889s</div><div class="cell-sub">Cast</div></td><td style="background:#d7bea0;"><div>45.883s</div><div class="cell-sub">Cast</div></td></tr><tr><th>5</th><td style="background:#eef4ef;"><div>8.485s</div><div class="cell-sub">Cast</div></td><td style="background:#d8e8db;"><div>13.767s</div><div class="cell-sub">Cast</div></td><td style="background:#bfd3c5;"><div>26.444s</div><div class="cell-sub">Cast</div></td><td style="background:#c88f63;"><div>63.358s</div><div class="cell-sub">Cast</div></td></tr>
+                </tbody>
+              </table>
+            </section>
+            
+            <section class="viz-card">
+              <h3>Матрица сценариев: maximum_protection</h3>
+              <p class="meta">Усиленный пороговый контур с конфигурацией 3-of-5.</p>
+              <table class="compact-table">
+                <thead>
+                  <tr><th>Кандидаты \ Голосующие</th><th>3</th><th>5</th><th>10</th><th>25</th></tr>
+                </thead>
+                <tbody>
+                  <tr><th>2</th><td style="background:#eef4ef;"><div>5.199s</div><div class="cell-sub">Cast</div></td><td style="background:#eef4ef;"><div>8.072s</div><div class="cell-sub">Cast</div></td><td style="background:#d8e8db;"><div>15.269s</div><div class="cell-sub">Cast</div></td><td style="background:#bfd3c5;"><div>37.070s</div><div class="cell-sub">Cast</div></td></tr><tr><th>3</th><td style="background:#eef4ef;"><div>6.495s</div><div class="cell-sub">Cast</div></td><td style="background:#eef4ef;"><div>10.190s</div><div class="cell-sub">Cast</div></td><td style="background:#d8e8db;"><div>19.621s</div><div class="cell-sub">Cast</div></td><td style="background:#d7bea0;"><div>47.711s</div><div class="cell-sub">Cast</div></td></tr><tr><th>5</th><td style="background:#eef4ef;"><div>9.196s</div><div class="cell-sub">Cast</div></td><td style="background:#d8e8db;"><div>14.778s</div><div class="cell-sub">Cast</div></td><td style="background:#bfd3c5;"><div>27.313s</div><div class="cell-sub">Cast</div></td><td style="background:#c88f63;"><div>66.407s</div><div class="cell-sub">Cast</div></td></tr>
+                </tbody>
+              </table>
+            </section>
+            
+        <table>
+          <thead>
+            <tr>
+              <th>Профиль</th>
+              <th>Кандидаты</th>
+              <th>Голосующие</th>
+              <th>Режим</th>
+              <th>Threshold</th>
+              <th>Authorities</th>
+              <th>Auth</th>
+              <th>Token</th>
+              <th>Cast</th>
+              <th>Verify</th>
+              <th>Mine</th>
+              <th>Results</th>
+              <th>Homo</th>
+              <th>Total</th>
+              <th>Bottleneck</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+            <tr>
+              <td>basic</td>
+              <td>2</td>
+              <td>3</td>
+              <td>simple</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.097s</td>
+              <td>0.000s</td>
+              <td>0.013s</td>
+              <td>0.000s</td>
+              <td>0.005s</td>
+              <td>0.001s</td>
+              <td>0.000s</td>
+              <td>0.116s</td>
+              <td><strong>auth_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>basic</td>
+              <td>2</td>
+              <td>5</td>
+              <td>simple</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.184s</td>
+              <td>0.000s</td>
+              <td>0.024s</td>
+              <td>0.000s</td>
+              <td>0.016s</td>
+              <td>0.001s</td>
+              <td>0.000s</td>
+              <td>0.225s</td>
+              <td><strong>auth_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>basic</td>
+              <td>2</td>
+              <td>10</td>
+              <td>simple</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.362s</td>
+              <td>0.000s</td>
+              <td>0.042s</td>
+              <td>0.000s</td>
+              <td>0.006s</td>
+              <td>0.001s</td>
+              <td>0.000s</td>
+              <td>0.412s</td>
+              <td><strong>auth_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>basic</td>
+              <td>2</td>
+              <td>25</td>
+              <td>simple</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.903s</td>
+              <td>0.000s</td>
+              <td>0.105s</td>
+              <td>0.000s</td>
+              <td>0.012s</td>
+              <td>0.001s</td>
+              <td>0.000s</td>
+              <td>1.022s</td>
+              <td><strong>auth_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>basic</td>
+              <td>3</td>
+              <td>3</td>
+              <td>simple</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.098s</td>
+              <td>0.000s</td>
+              <td>0.010s</td>
+              <td>0.000s</td>
+              <td>0.003s</td>
+              <td>0.001s</td>
+              <td>0.000s</td>
+              <td>0.111s</td>
+              <td><strong>auth_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>basic</td>
+              <td>3</td>
+              <td>5</td>
+              <td>simple</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.210s</td>
+              <td>0.000s</td>
+              <td>0.016s</td>
+              <td>0.000s</td>
+              <td>0.004s</td>
+              <td>0.001s</td>
+              <td>0.000s</td>
+              <td>0.230s</td>
+              <td><strong>auth_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>basic</td>
+              <td>3</td>
+              <td>10</td>
+              <td>simple</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.351s</td>
+              <td>0.000s</td>
+              <td>0.039s</td>
+              <td>0.000s</td>
+              <td>0.010s</td>
+              <td>0.001s</td>
+              <td>0.000s</td>
+              <td>0.401s</td>
+              <td><strong>auth_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>basic</td>
+              <td>3</td>
+              <td>25</td>
+              <td>simple</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.931s</td>
+              <td>0.000s</td>
+              <td>0.130s</td>
+              <td>0.000s</td>
+              <td>0.025s</td>
+              <td>0.001s</td>
+              <td>0.000s</td>
+              <td>1.087s</td>
+              <td><strong>auth_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>basic</td>
+              <td>5</td>
+              <td>3</td>
+              <td>simple</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.096s</td>
+              <td>0.000s</td>
+              <td>0.010s</td>
+              <td>0.000s</td>
+              <td>0.003s</td>
+              <td>0.001s</td>
+              <td>0.000s</td>
+              <td>0.111s</td>
+              <td><strong>auth_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>basic</td>
+              <td>5</td>
+              <td>5</td>
+              <td>simple</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.161s</td>
+              <td>0.000s</td>
+              <td>0.052s</td>
+              <td>0.000s</td>
+              <td>0.005s</td>
+              <td>0.001s</td>
+              <td>0.000s</td>
+              <td>0.222s</td>
+              <td><strong>auth_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>basic</td>
+              <td>5</td>
+              <td>10</td>
+              <td>simple</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.362s</td>
+              <td>0.000s</td>
+              <td>0.032s</td>
+              <td>0.000s</td>
+              <td>0.003s</td>
+              <td>0.001s</td>
+              <td>0.000s</td>
+              <td>0.398s</td>
+              <td><strong>auth_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>basic</td>
+              <td>5</td>
+              <td>25</td>
+              <td>simple</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.959s</td>
+              <td>0.000s</td>
+              <td>0.128s</td>
+              <td>0.000s</td>
+              <td>0.005s</td>
+              <td>0.001s</td>
+              <td>0.000s</td>
+              <td>1.093s</td>
+              <td><strong>auth_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>standard</td>
+              <td>2</td>
+              <td>3</td>
+              <td>encrypted</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.094s</td>
+              <td>0.351s</td>
+              <td>1.742s</td>
+              <td>0.002s</td>
+              <td>0.068s</td>
+              <td>0.001s</td>
+              <td>0.000s</td>
+              <td>4.465s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>standard</td>
+              <td>2</td>
+              <td>5</td>
+              <td>encrypted</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.157s</td>
+              <td>0.625s</td>
+              <td>2.875s</td>
+              <td>0.002s</td>
+              <td>0.005s</td>
+              <td>0.001s</td>
+              <td>0.000s</td>
+              <td>7.486s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>standard</td>
+              <td>2</td>
+              <td>10</td>
+              <td>encrypted</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.362s</td>
+              <td>1.149s</td>
+              <td>6.166s</td>
+              <td>0.004s</td>
+              <td>0.041s</td>
+              <td>0.001s</td>
+              <td>0.000s</td>
+              <td>15.568s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>standard</td>
+              <td>2</td>
+              <td>25</td>
+              <td>encrypted</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.937s</td>
+              <td>2.984s</td>
+              <td>15.084s</td>
+              <td>0.008s</td>
+              <td>0.450s</td>
+              <td>0.000s</td>
+              <td>0.000s</td>
+              <td>38.482s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>standard</td>
+              <td>3</td>
+              <td>3</td>
+              <td>encrypted</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.098s</td>
+              <td>0.371s</td>
+              <td>2.349s</td>
+              <td>0.001s</td>
+              <td>0.046s</td>
+              <td>0.001s</td>
+              <td>0.000s</td>
+              <td>5.917s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>standard</td>
+              <td>3</td>
+              <td>5</td>
+              <td>encrypted</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.210s</td>
+              <td>0.599s</td>
+              <td>3.637s</td>
+              <td>0.002s</td>
+              <td>0.010s</td>
+              <td>0.000s</td>
+              <td>0.000s</td>
+              <td>9.279s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>standard</td>
+              <td>3</td>
+              <td>10</td>
+              <td>encrypted</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.352s</td>
+              <td>1.164s</td>
+              <td>7.278s</td>
+              <td>0.004s</td>
+              <td>0.044s</td>
+              <td>0.000s</td>
+              <td>0.000s</td>
+              <td>18.513s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>standard</td>
+              <td>3</td>
+              <td>25</td>
+              <td>encrypted</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.914s</td>
+              <td>3.281s</td>
+              <td>18.960s</td>
+              <td>0.009s</td>
+              <td>0.282s</td>
+              <td>0.001s</td>
+              <td>0.000s</td>
+              <td>48.323s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>standard</td>
+              <td>5</td>
+              <td>3</td>
+              <td>encrypted</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.103s</td>
+              <td>0.347s</td>
+              <td>3.095s</td>
+              <td>0.001s</td>
+              <td>0.023s</td>
+              <td>0.001s</td>
+              <td>0.000s</td>
+              <td>7.729s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>standard</td>
+              <td>5</td>
+              <td>5</td>
+              <td>encrypted</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.178s</td>
+              <td>0.609s</td>
+              <td>5.068s</td>
+              <td>0.002s</td>
+              <td>0.041s</td>
+              <td>0.001s</td>
+              <td>0.000s</td>
+              <td>12.652s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>standard</td>
+              <td>5</td>
+              <td>10</td>
+              <td>encrypted</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.337s</td>
+              <td>1.121s</td>
+              <td>10.287s</td>
+              <td>0.003s</td>
+              <td>0.237s</td>
+              <td>0.000s</td>
+              <td>0.000s</td>
+              <td>25.323s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>standard</td>
+              <td>5</td>
+              <td>25</td>
+              <td>encrypted</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0.841s</td>
+              <td>2.855s</td>
+              <td>25.353s</td>
+              <td>0.008s</td>
+              <td>0.510s</td>
+              <td>0.001s</td>
+              <td>0.000s</td>
+              <td>62.944s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>high_assurance</td>
+              <td>2</td>
+              <td>3</td>
+              <td>encrypted</td>
+              <td>2</td>
+              <td>3</td>
+              <td>0.092s</td>
+              <td>0.351s</td>
+              <td>1.732s</td>
+              <td>0.001s</td>
+              <td>0.011s</td>
+              <td>0.001s</td>
+              <td>0.580s</td>
+              <td>4.881s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>high_assurance</td>
+              <td>2</td>
+              <td>5</td>
+              <td>encrypted</td>
+              <td>2</td>
+              <td>3</td>
+              <td>0.224s</td>
+              <td>0.618s</td>
+              <td>2.764s</td>
+              <td>0.003s</td>
+              <td>0.027s</td>
+              <td>0.001s</td>
+              <td>0.628s</td>
+              <td>7.924s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>high_assurance</td>
+              <td>2</td>
+              <td>10</td>
+              <td>encrypted</td>
+              <td>2</td>
+              <td>3</td>
+              <td>0.376s</td>
+              <td>1.329s</td>
+              <td>5.676s</td>
+              <td>0.008s</td>
+              <td>0.060s</td>
+              <td>0.001s</td>
+              <td>0.567s</td>
+              <td>15.163s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>high_assurance</td>
+              <td>2</td>
+              <td>25</td>
+              <td>encrypted</td>
+              <td>2</td>
+              <td>3</td>
+              <td>0.857s</td>
+              <td>2.869s</td>
+              <td>14.215s</td>
+              <td>0.008s</td>
+              <td>0.143s</td>
+              <td>0.001s</td>
+              <td>0.631s</td>
+              <td>37.262s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>high_assurance</td>
+              <td>3</td>
+              <td>3</td>
+              <td>encrypted</td>
+              <td>2</td>
+              <td>3</td>
+              <td>0.095s</td>
+              <td>0.348s</td>
+              <td>2.201s</td>
+              <td>0.001s</td>
+              <td>0.050s</td>
+              <td>0.000s</td>
+              <td>0.740s</td>
+              <td>6.185s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>high_assurance</td>
+              <td>3</td>
+              <td>5</td>
+              <td>encrypted</td>
+              <td>2</td>
+              <td>3</td>
+              <td>0.181s</td>
+              <td>0.572s</td>
+              <td>3.552s</td>
+              <td>0.002s</td>
+              <td>0.044s</td>
+              <td>0.001s</td>
+              <td>0.771s</td>
+              <td>9.771s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>high_assurance</td>
+              <td>3</td>
+              <td>10</td>
+              <td>encrypted</td>
+              <td>2</td>
+              <td>3</td>
+              <td>0.319s</td>
+              <td>1.247s</td>
+              <td>7.198s</td>
+              <td>0.007s</td>
+              <td>0.045s</td>
+              <td>0.001s</td>
+              <td>0.755s</td>
+              <td>18.889s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>high_assurance</td>
+              <td>3</td>
+              <td>25</td>
+              <td>encrypted</td>
+              <td>2</td>
+              <td>3</td>
+              <td>0.904s</td>
+              <td>2.885s</td>
+              <td>17.810s</td>
+              <td>0.008s</td>
+              <td>0.145s</td>
+              <td>0.000s</td>
+              <td>0.787s</td>
+              <td>45.883s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>high_assurance</td>
+              <td>5</td>
+              <td>3</td>
+              <td>encrypted</td>
+              <td>2</td>
+              <td>3</td>
+              <td>0.092s</td>
+              <td>0.336s</td>
+              <td>3.061s</td>
+              <td>0.001s</td>
+              <td>0.009s</td>
+              <td>0.000s</td>
+              <td>1.041s</td>
+              <td>8.485s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>high_assurance</td>
+              <td>5</td>
+              <td>5</td>
+              <td>encrypted</td>
+              <td>2</td>
+              <td>3</td>
+              <td>0.171s</td>
+              <td>0.548s</td>
+              <td>5.173s</td>
+              <td>0.002s</td>
+              <td>0.087s</td>
+              <td>0.001s</td>
+              <td>1.043s</td>
+              <td>13.767s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>high_assurance</td>
+              <td>5</td>
+              <td>10</td>
+              <td>encrypted</td>
+              <td>2</td>
+              <td>3</td>
+              <td>0.330s</td>
+              <td>1.189s</td>
+              <td>10.279s</td>
+              <td>0.004s</td>
+              <td>0.122s</td>
+              <td>0.000s</td>
+              <td>1.055s</td>
+              <td>26.444s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>high_assurance</td>
+              <td>5</td>
+              <td>25</td>
+              <td>encrypted</td>
+              <td>2</td>
+              <td>3</td>
+              <td>0.843s</td>
+              <td>2.879s</td>
+              <td>25.207s</td>
+              <td>0.008s</td>
+              <td>0.069s</td>
+              <td>0.001s</td>
+              <td>1.052s</td>
+              <td>63.358s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>maximum_protection</td>
+              <td>2</td>
+              <td>3</td>
+              <td>encrypted</td>
+              <td>3</td>
+              <td>5</td>
+              <td>0.091s</td>
+              <td>0.366s</td>
+              <td>1.720s</td>
+              <td>0.001s</td>
+              <td>0.016s</td>
+              <td>0.001s</td>
+              <td>0.755s</td>
+              <td>5.199s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>maximum_protection</td>
+              <td>2</td>
+              <td>5</td>
+              <td>encrypted</td>
+              <td>3</td>
+              <td>5</td>
+              <td>0.226s</td>
+              <td>0.588s</td>
+              <td>2.835s</td>
+              <td>0.002s</td>
+              <td>0.008s</td>
+              <td>0.000s</td>
+              <td>0.765s</td>
+              <td>8.072s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>maximum_protection</td>
+              <td>2</td>
+              <td>10</td>
+              <td>encrypted</td>
+              <td>3</td>
+              <td>5</td>
+              <td>0.379s</td>
+              <td>1.174s</td>
+              <td>5.572s</td>
+              <td>0.003s</td>
+              <td>0.077s</td>
+              <td>0.001s</td>
+              <td>0.725s</td>
+              <td>15.269s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>maximum_protection</td>
+              <td>2</td>
+              <td>25</td>
+              <td>encrypted</td>
+              <td>3</td>
+              <td>5</td>
+              <td>0.919s</td>
+              <td>2.912s</td>
+              <td>14.143s</td>
+              <td>0.008s</td>
+              <td>0.123s</td>
+              <td>0.001s</td>
+              <td>0.776s</td>
+              <td>37.070s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>maximum_protection</td>
+              <td>3</td>
+              <td>3</td>
+              <td>encrypted</td>
+              <td>3</td>
+              <td>5</td>
+              <td>0.094s</td>
+              <td>0.345s</td>
+              <td>2.189s</td>
+              <td>0.001s</td>
+              <td>0.069s</td>
+              <td>0.001s</td>
+              <td>0.909s</td>
+              <td>6.495s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>maximum_protection</td>
+              <td>3</td>
+              <td>5</td>
+              <td>encrypted</td>
+              <td>3</td>
+              <td>5</td>
+              <td>0.157s</td>
+              <td>0.645s</td>
+              <td>3.710s</td>
+              <td>0.002s</td>
+              <td>0.026s</td>
+              <td>0.000s</td>
+              <td>0.940s</td>
+              <td>10.190s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>maximum_protection</td>
+              <td>3</td>
+              <td>10</td>
+              <td>encrypted</td>
+              <td>3</td>
+              <td>5</td>
+              <td>0.344s</td>
+              <td>1.235s</td>
+              <td>7.501s</td>
+              <td>0.004s</td>
+              <td>0.036s</td>
+              <td>0.001s</td>
+              <td>1.006s</td>
+              <td>19.621s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>maximum_protection</td>
+              <td>3</td>
+              <td>25</td>
+              <td>encrypted</td>
+              <td>3</td>
+              <td>5</td>
+              <td>0.911s</td>
+              <td>2.958s</td>
+              <td>18.486s</td>
+              <td>0.014s</td>
+              <td>0.060s</td>
+              <td>0.001s</td>
+              <td>0.960s</td>
+              <td>47.711s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>maximum_protection</td>
+              <td>5</td>
+              <td>3</td>
+              <td>encrypted</td>
+              <td>3</td>
+              <td>5</td>
+              <td>0.106s</td>
+              <td>0.401s</td>
+              <td>3.137s</td>
+              <td>0.001s</td>
+              <td>0.011s</td>
+              <td>0.000s</td>
+              <td>1.450s</td>
+              <td>9.196s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>maximum_protection</td>
+              <td>5</td>
+              <td>5</td>
+              <td>encrypted</td>
+              <td>3</td>
+              <td>5</td>
+              <td>0.160s</td>
+              <td>0.654s</td>
+              <td>5.480s</td>
+              <td>0.002s</td>
+              <td>0.045s</td>
+              <td>0.001s</td>
+              <td>1.404s</td>
+              <td>14.778s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>maximum_protection</td>
+              <td>5</td>
+              <td>10</td>
+              <td>encrypted</td>
+              <td>3</td>
+              <td>5</td>
+              <td>0.328s</td>
+              <td>1.287s</td>
+              <td>10.538s</td>
+              <td>0.003s</td>
+              <td>0.068s</td>
+              <td>0.000s</td>
+              <td>1.368s</td>
+              <td>27.313s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+            <tr>
+              <td>maximum_protection</td>
+              <td>5</td>
+              <td>25</td>
+              <td>encrypted</td>
+              <td>3</td>
+              <td>5</td>
+              <td>0.812s</td>
+              <td>3.032s</td>
+              <td>26.345s</td>
+              <td>0.059s</td>
+              <td>0.293s</td>
+              <td>0.001s</td>
+              <td>1.342s</td>
+              <td>66.407s</td>
+              <td><strong>cast_total</strong></td>
+            </tr>
+            
+          </tbody>
+        </table>
+      </div>
+    </body>
+    </html>
+    

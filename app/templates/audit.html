@@ -1,0 +1,442 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .audit-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+    min-width: 0;
+  }
+
+  .audit-stack {
+    display: grid;
+    gap: 18px;
+    min-width: 0;
+  }
+
+  .audit-stack > * {
+    min-width: 0;
+  }
+
+  .audit-frame {
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  .audit-side-note {
+    border: 1px solid var(--line);
+    background: var(--panel-strong);
+    padding: 14px;
+    border-radius: var(--radius-md);
+  }
+
+  .audit-demo-hero {
+    display: grid;
+    gap: 14px;
+  }
+
+  .audit-demo-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 10px;
+  }
+
+  .audit-demo-card {
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(255,255,255,0.66), rgba(255,255,255,0.9));
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    display: grid;
+    gap: 8px;
+  }
+
+  .audit-demo-card strong {
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .audit-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: end;
+    margin-bottom: 14px;
+  }
+
+  .audit-toolbar form {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: end;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .table-shell {
+    width: 100%;
+    overflow-x: auto;
+    min-width: 0;
+  }
+
+  .table-shell table {
+    min-width: 760px;
+  }
+
+  .audit-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .audit-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .audit-metric {
+    border: 1px solid var(--line);
+    background: var(--panel-strong);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    display: grid;
+    gap: 6px;
+  }
+
+  .audit-metric-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .audit-compare {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .audit-compare-card {
+    border: 1px solid var(--line);
+    background: var(--panel-strong);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .audit-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    width: fit-content;
+  }
+
+  .audit-chip.ok {
+    background: rgba(52, 168, 83, 0.16);
+    color: #1f6b34;
+  }
+
+  .audit-chip.warn {
+    background: rgba(202, 138, 4, 0.16);
+    color: #8a5a00;
+  }
+
+  @media (max-width: 1180px) {
+    .audit-demo-grid,
+    .audit-toolbar form {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .audit-metrics,
+    .audit-compare {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .audit-demo-grid,
+    .audit-toolbar form {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="audit-layout">
+  <div class="audit-stack">
+    <div class="panel panel-strong">
+      <div class="audit-demo-hero">
+        <div>
+          <p class="eyebrow">Defense View</p>
+          <h2 class="section-title">Audit Dashboard</h2>
+          <p class="compact-meta">Logged in as <strong>{{ voter_id }}</strong> ({{ role }}). This page shows the accountability trail for core system events and the integrity workflow around the authoritative blockchain ledger.</p>
+        </div>
+        <div class="audit-demo-grid">
+          <div class="audit-demo-card">
+            <strong>What to Show First</strong>
+            <div>Start with <span class="mono">Integrity Status</span> and <span class="mono">Result Consistency</span>. These blocks demonstrate that confirmed results are derived from the blockchain ledger and cross-checked against the application view.</div>
+          </div>
+          <div class="audit-demo-card">
+            <strong>What It Proves</strong>
+            <div>The system distinguishes between authoritative confirmed state and derived UI state, and can detect or repair divergence.</div>
+          </div>
+          <div class="audit-demo-card">
+            <strong>Commission Note</strong>
+            <div>Use this page for integrity, traceability, and maintenance workflow. It is not intended for deanonymization or operational voting.</div>
+          </div>
+        </div>
+      </div>
+      <div class="status-note ok" style="margin-top: 14px;">
+        Use this page for lifecycle control and event evidence, not for deanonymization.
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="eyebrow">Election Registry</p>
+      <div class="table-shell">
+        <table>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Profile</th>
+            <th>Scores</th>
+            {% if role == 'admin' %}<th>Actions</th>{% endif %}
+          </tr>
+          {% for election in elections %}
+          <tr>
+            <td>{{ election.id }}</td>
+            <td>{{ election.name }}</td>
+            <td>{{ election.status }}</td>
+            <td>{{ election.profile.label }}</td>
+            <td>
+              S {{ election.security_score }} |
+              P {{ election.privacy_score }} |
+              T {{ election.transparency_score }} |
+              Sc {{ election.scalability_score }}
+            </td>
+            {% if role == 'admin' %}
+            <td>
+              <form action="{{ url_for('audit_dashboard') }}" method="post" class="audit-actions">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+                <input type="hidden" name="action" value="set_status" />
+                <input type="hidden" name="election_id" value="{{ election.id }}" />
+                <button type="submit" name="status" value="draft">Draft</button>
+                <button type="submit" name="status" value="active">Activate</button>
+                <button type="submit" name="status" value="closed">Close</button>
+              </form>
+            </td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="eyebrow">Integrity Status</p>
+      <div class="status-note {% if integrity_status.chain_valid and integrity_status.ballot_view_consistent %}ok{% else %}warn{% endif %}" style="margin-bottom: 14px;">
+        Chain validation: <strong>{{ 'valid' if integrity_status.chain_valid else 'invalid' }}</strong>;
+        derived ballot view: <strong>{{ 'consistent' if integrity_status.ballot_view_consistent else 'inconsistent' }}</strong>.
+        {% if integrity_status.ballot_view_repaired %}
+        Automatic rebuild from blockchain was applied.
+        {% endif %}
+        {% if integrity_status.error %}
+        <span class="mono">{{ integrity_status.error }}</span>
+        {% endif %}
+      </div>
+      <div class="audit-metrics">
+        <div class="audit-metric">
+          <div class="compact-meta">Chain Length</div>
+          <div class="audit-metric-value">{{ integrity_status.chain_length }}</div>
+          <div class="compact-meta">Confirmed ledger depth</div>
+        </div>
+        <div class="audit-metric">
+          <div class="compact-meta">Pending Transactions</div>
+          <div class="audit-metric-value">{{ integrity_status.pending_transaction_count }}</div>
+          <div class="compact-meta">Unconfirmed write set</div>
+        </div>
+        <div class="audit-metric">
+          <div class="compact-meta">Confirmed Encrypted Ballots</div>
+          <div class="audit-metric-value">{{ integrity_status.confirmed_encrypted_ballot_count }}</div>
+          <div class="compact-meta">Chain-derived protected ballots</div>
+        </div>
+      </div>
+      <form action="{{ url_for('audit_dashboard') }}" method="post" class="audit-actions">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+        <input type="hidden" name="action" value="rebuild_state" />
+        <button type="submit">Rebuild Confirmed View</button>
+      </form>
+      <div class="compact-meta" style="margin-top: 10px;">This action reconstructs the confirmed ballot view from the blockchain ledger without touching pending ballots.</div>
+    </div>
+
+    <div class="panel">
+      <p class="eyebrow">Result Consistency</p>
+      <div class="status-note {% if result_consistency.counts_match %}ok{% else %}warn{% endif %}" style="margin-bottom: 14px;">
+        Active election counts: <strong>{{ 'match' if result_consistency.counts_match else 'mismatch' }}</strong>
+        between chain-derived tally and derived ballot view.
+      </div>
+      <div class="audit-chip {% if result_consistency.counts_match %}ok{% else %}warn{% endif %}">
+        {{ 'Match' if result_consistency.counts_match else 'Mismatch' }}
+      </div>
+      <div class="compact-meta" style="margin-top: 10px;">
+        Election: <strong>{{ result_consistency.election_name or 'No active election' }}</strong>
+      </div>
+      <div class="audit-compare">
+        <div class="audit-compare-card">
+          <div class="eyebrow">Chain-Derived</div>
+          <div class="compact-meta">Authoritative tally from confirmed blockchain ledger</div>
+          <div class="mono">{{ result_consistency.chain_counts }}</div>
+        </div>
+        <div class="audit-compare-card">
+          <div class="eyebrow">Derived View</div>
+          <div class="compact-meta">Application view restored and checked against the ledger</div>
+          <div class="mono">{{ result_consistency.derived_view_counts }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="audit-toolbar">
+        <div>
+          <p class="eyebrow">Event Filter</p>
+          <div class="compact-meta">Limit the table to one event type when needed.</div>
+        </div>
+        <form action="{{ url_for('audit_dashboard') }}" method="get">
+          <div>
+            <label for="event_type" style="display: block; margin-bottom: 8px;">Event type</label>
+            <select id="event_type" name="event_type">
+              <option value="">All events</option>
+              {% for event_type in available_event_types %}
+              <option value="{{ event_type }}" {% if selected_event_type == event_type %}selected{% endif %}>{{ event_type }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="actor_type" style="display: block; margin-bottom: 8px;">Actor type</label>
+            <select id="actor_type" name="actor_type">
+              <option value="">All actors</option>
+              {% for actor_type in available_actor_types %}
+              <option value="{{ actor_type }}" {% if selected_actor_type == actor_type %}selected{% endif %}>{{ actor_type }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label for="limit" style="display: block; margin-bottom: 8px;">Rows</label>
+            <select id="limit" name="limit">
+              {% for limit_value in allowed_limits %}
+              <option value="{{ limit_value }}" {% if selected_limit == limit_value %}selected{% endif %}>{{ limit_value }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <button type="submit">Apply Filter</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="table-shell">
+        <table>
+          <tr>
+            <th>Time</th>
+            <th>Event</th>
+            <th>Actor Type</th>
+            <th>Actor ID</th>
+            <th>Election</th>
+            <th>Details</th>
+          </tr>
+          {% for event in events %}
+          <tr>
+            <td>{{ readable_time(event.created_at) }}</td>
+            <td>{{ event.event_type }}</td>
+            <td>{{ event.actor_type }}</td>
+            <td>{{ event.actor_id }}</td>
+            <td>{{ event.election_id }}</td>
+            <td>
+              <details class="disclosure">
+                <summary>Open details</summary>
+                <div class="disclosure-body">
+                  {% if event.details %}
+                  <div class="stack-list">
+                    {% for key, value in event.details.items() %}
+                    <div>
+                      <strong>{{ key }}:</strong>
+                      <span class="mono">{{ value }}</span>
+                    </div>
+                    {% endfor %}
+                  </div>
+                  {% else %}
+                  <div class="compact-meta">No structured details.</div>
+                  {% endif %}
+                </div>
+              </details>
+            </td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="audit-stack">
+    {% if role == 'admin' %}
+    <div class="panel">
+      <p class="eyebrow">Admin Tools</p>
+      <div class="audit-frame">
+        <div class="status-note ok">
+          Election creation and draft editing now live in <strong>Election Designer</strong>.
+        </div>
+        <div class="audit-side-note">
+          <strong>Best use:</strong> keep this screen for verification and event history.
+        </div>
+      </div>
+      <div style="display: grid; gap: 10px; margin-top: 12px;">
+        <a href="{{ url_for('election_designer') }}"><button type="button">Open Election Designer</button></a>
+        <div class="compact-meta">Use the designer for profile selection and draft editing.</div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="panel">
+      <p class="eyebrow">Role Surface</p>
+      <div style="display: grid; gap: 10px;">
+        <div class="status-note ok"><strong>Auditor:</strong> inspect accountability events, election lifecycle, threshold evidence and research outputs.</div>
+        <div class="status-note ok"><strong>Admin:</strong> in addition to inspection, control election lifecycle and open the dedicated designer for event creation and draft changes.</div>
+        <div class="status-note ok"><strong>Voter:</strong> uses protocol and verification pages, but does not access this operational audit surface.</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="eyebrow">Navigation</p>
+      <div style="display: grid; gap: 10px;">
+        {% if role == 'admin' %}
+        <a href="{{ url_for('election_designer') }}"><button type="button">Open Election Designer</button></a>
+        {% endif %}
+        <a href="{{ url_for('index') }}"><button type="button">Back to Protocol</button></a>
+        <a href="{{ url_for('research_dashboard') }}"><button type="button">Open Research Dashboard</button></a>
+      </div>
+    </div>
+
+    {% if role != 'auditor' %}
+    <div class="panel">
+      <p class="eyebrow">Audit Notes</p>
+      <div class="status-note ok">This trail is intended for accountability and research inspection, not for ballot deanonymization.</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

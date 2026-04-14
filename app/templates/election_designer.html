@@ -1,0 +1,1329 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .designer-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .designer-stack,
+  .profile-grid,
+  .registry-grid,
+  .comparison-grid {
+    display: grid;
+    gap: 18px;
+  }
+
+  .builder-layout,
+  .builder-sidebar {
+    display: grid;
+    gap: 16px;
+  }
+
+  .builder-layout {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    align-items: start;
+  }
+
+  .designer-layout > *,
+  .designer-stack,
+  .preview-stack,
+  .summary-card,
+  .step-box,
+  .impact-box {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .panel,
+  form,
+  table,
+  input,
+  select,
+  textarea,
+  button {
+    max-width: 100%;
+  }
+
+  .profile-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .registry-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+
+  .profile-card,
+  .election-card {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    padding: 16px;
+    border-radius: var(--radius-md);
+    min-width: 0;
+  }
+
+  .builder-steps,
+  .template-grid,
+  .form-summary-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .builder-steps {
+    grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr) 24px minmax(0, 1fr) 24px minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .template-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .step-box,
+  .template-card,
+  .summary-card {
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: var(--radius-md);
+    padding: 12px;
+    min-width: 0;
+  }
+
+  .template-card {
+    cursor: pointer;
+    transition: transform 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+  }
+
+  .template-card:hover {
+    transform: translateY(-1px);
+    border-color: #a7bab4;
+    box-shadow: 0 6px 14px rgba(39, 45, 39, 0.05);
+  }
+
+  .template-card strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 14px;
+  }
+
+  .template-card.active-template {
+    border-color: #8eada6;
+    box-shadow: 0 0 0 3px rgba(31, 92, 87, 0.08);
+  }
+
+  .compact-disclosure > summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .compact-disclosure > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .compact-disclosure > summary::after {
+    content: "+";
+    font-size: 20px;
+    line-height: 1;
+    color: #6b7f78;
+  }
+
+  .compact-disclosure[open] > summary::after {
+    content: "−";
+  }
+
+  .section-rail {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .section-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fff;
+    color: inherit;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .template-card-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+
+  .template-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid #c7d4ce;
+    background: linear-gradient(180deg, #f8fbf9 0%, #edf5f1 100%);
+    color: #1f5c57;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    flex: 0 0 auto;
+  }
+
+  .step-arrow {
+    text-align: center;
+    font-size: 20px;
+    color: #7d8f88;
+    font-weight: 700;
+    user-select: none;
+  }
+
+  .prominent-input {
+    width: 100%;
+    min-height: 52px;
+    padding: 14px 16px;
+    font-size: 17px;
+    font-weight: 600;
+    border: 1px solid #bfcfc7;
+    background: #fffdf8;
+    box-shadow: inset 0 1px 2px rgba(31, 37, 33, 0.04);
+  }
+
+  .field-lead {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .step-box {
+    transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease, transform 120ms ease;
+  }
+
+  .step-box strong {
+    display: block;
+  }
+
+  .step-box.active-step {
+    border-color: #8eada6;
+    background: linear-gradient(180deg, #f9fcfb 0%, #f0f7f4 100%);
+    box-shadow: 0 0 0 3px rgba(31, 92, 87, 0.08);
+    transform: translateY(-1px);
+  }
+
+  .step-box.complete-step {
+    border-color: #9cc6a4;
+    background: #eef8f1;
+  }
+
+  .step-box.pending-step {
+    border-color: var(--line);
+    background: #fff;
+  }
+
+  .step-state {
+    display: inline-flex;
+    margin-top: 8px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    background: #fff;
+  }
+
+  .step-state.active {
+    border-color: #8eada6;
+    color: #1f5c57;
+    background: #eef7f4;
+  }
+
+  .step-state.complete {
+    border-color: #9cc6a4;
+    color: #0b6b36;
+    background: #eef8f1;
+  }
+
+  .step-state.pending {
+    border-color: #d7d1c5;
+    color: #6b7280;
+    background: #fbfaf7;
+  }
+
+  .form-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-card strong {
+    display: block;
+    margin-top: 6px;
+  }
+
+  .option-preview {
+    display: grid;
+    gap: 8px;
+    max-height: 180px;
+    overflow-y: auto;
+    min-width: 0;
+  }
+
+  .validation-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .validation-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: #fff;
+    font-size: 12px;
+  }
+
+  .validation-badge.ready {
+    border-color: #8fba98;
+    background: #eef8f1;
+    color: #0b6b36;
+  }
+
+  .validation-badge.waiting {
+    border-color: #d6b378;
+    background: #fff6e8;
+    color: #9a3412;
+  }
+
+  .preflight-list {
+    display: grid;
+    gap: 8px;
+  }
+
+  .preflight-item {
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: var(--radius-sm);
+    padding: 9px 10px;
+    font-size: 14px;
+  }
+
+  .preflight-item.ready {
+    border-color: #8fba98;
+    background: #eef8f1;
+    color: #0b6b36;
+  }
+
+  .preflight-item.waiting {
+    border-color: #d6b378;
+    background: #fff6e8;
+    color: #9a3412;
+  }
+
+  .profile-card.active-profile {
+    border-color: #8eada6;
+    box-shadow: 0 0 0 3px rgba(31, 92, 87, 0.08);
+  }
+
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .score-box {
+    border: 1px solid var(--line);
+    background: #fff;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+  }
+
+  .score-box strong {
+    display: block;
+    font-size: 20px;
+  }
+
+  .preview-stack {
+    display: grid;
+    gap: 12px;
+  }
+
+  .feature-list,
+  .role-grid {
+    display: grid;
+    gap: 8px;
+  }
+
+  .feature-item {
+    border: 1px solid var(--line);
+    background: #fff;
+    padding: 9px 10px;
+  }
+
+  .impact-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .impact-box {
+    border: 1px solid var(--line);
+    background: #fff;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+  }
+
+  .delta-up {
+    color: #0b6b36;
+  }
+
+  .delta-down {
+    color: #9a3412;
+  }
+
+  .delta-flat {
+    color: #475569;
+  }
+
+  .compare-table-shell {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .compare-table-shell table {
+    min-width: 980px;
+  }
+
+  .mini-chart {
+    display: grid;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .chart-row {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr) 52px;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .chart-label {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .chart-track {
+    width: 100%;
+    height: 14px;
+    border-radius: 999px;
+    border: 1px solid #d0c5b1;
+    background: linear-gradient(180deg, #eee7da 0%, #e5dccb 100%);
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(32, 40, 36, 0.06);
+  }
+
+  .chart-fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    min-width: 8px;
+    background: linear-gradient(90deg, #215d58 0%, #6fa09a 100%);
+  }
+
+  .chart-fill.privacy {
+    background: linear-gradient(90deg, #305672 0%, #7f9eb8 100%);
+  }
+
+  .chart-fill.transparency {
+    background: linear-gradient(90deg, #8b6220 0%, #c9a85e 100%);
+  }
+
+  .chart-fill.scalability {
+    background: linear-gradient(90deg, #4c5d68 0%, #95a3af 100%);
+  }
+
+  .chart-value {
+    font-size: 12px;
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .profile-chart-grid {
+    display: grid;
+    gap: 14px;
+  }
+
+  .profile-chart-card {
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: var(--radius-md);
+    padding: 14px;
+  }
+
+  .profile-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: #fff;
+    font-size: 12px;
+  }
+
+  .check {
+    color: #0b6b36;
+    font-weight: 700;
+  }
+
+  .minus {
+    color: #9a3412;
+    font-weight: 700;
+  }
+
+  .radar-wrap {
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: var(--radius-md);
+    padding: 12px;
+  }
+
+  .radar-svg {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .radar-grid-line {
+    fill: none;
+    stroke: #d7cfbf;
+    stroke-width: 1;
+  }
+
+  .radar-axis {
+    stroke: #c9c0ae;
+    stroke-width: 1;
+  }
+
+  .radar-shape {
+    fill: rgba(31, 92, 87, 0.18);
+    stroke: #1f5c57;
+    stroke-width: 2;
+  }
+
+  .radar-point {
+    fill: #1f5c57;
+  }
+
+  .radar-label {
+    font-size: 11px;
+    fill: #5f6d67;
+    text-anchor: middle;
+  }
+
+  @media (max-width: 980px) {
+    .designer-layout,
+    .profile-grid,
+    .builder-layout,
+    .impact-grid,
+    .builder-steps,
+    .template-grid,
+    .form-summary-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .step-arrow {
+      display: none;
+    }
+  }
+</style>
+
+<div class="designer-layout">
+  <div class="designer-stack">
+    <div class="panel panel-strong">
+      <p class="eyebrow">Admin Workspace</p>
+      <h2 class="section-title">Election Designer</h2>
+      <p class="compact-meta">Create an election, choose a protection profile, and save it safely before launch.</p>
+      <div class="section-rail">
+        <a class="section-link" href="#create-election">Create</a>
+        <a class="section-link" href="#security-profiles">Profiles</a>
+        <a class="section-link" href="#manage-elections">Manage</a>
+      </div>
+    </div>
+
+    <div class="panel" id="create-election">
+      <p class="eyebrow">{% if selected_election %}Edit Draft Election{% else %}Create Election{% endif %}</p>
+      <div class="builder-steps" style="margin-bottom: 14px;">
+        <div class="step-box pending-step" id="step-name">
+          <div class="compact-meta">Step 1</div>
+          <strong>Name the election</strong>
+          <span class="step-state pending" id="step-name-state">Pending</span>
+        </div>
+        <div class="step-arrow" aria-hidden="true">→</div>
+        <div class="step-box pending-step" id="step-profile">
+          <div class="compact-meta">Step 2</div>
+          <strong>Select a profile</strong>
+          <span class="step-state pending" id="step-profile-state">Pending</span>
+        </div>
+        <div class="step-arrow" aria-hidden="true">→</div>
+        <div class="step-box pending-step" id="step-options">
+          <div class="compact-meta">Step 3</div>
+          <strong>Add options</strong>
+          <span class="step-state pending" id="step-options-state">Pending</span>
+        </div>
+        <div class="step-arrow" aria-hidden="true">→</div>
+        <div class="step-box pending-step" id="step-review">
+          <div class="compact-meta">Step 4</div>
+          <strong>Review and save</strong>
+          <span class="step-state pending" id="step-review-state">Pending</span>
+        </div>
+      </div>
+
+      {% if not selected_election %}
+      <div style="margin-bottom: 14px;">
+        <div class="compact-meta" style="margin-bottom: 8px;">Quick start templates</div>
+        <div class="template-grid" id="template-grid">
+          <button type="button" class="template-card" data-template-key="student_senate">
+            <div class="template-card-head">
+              <span class="template-icon">SS</span>
+              <strong>Student Senate</strong>
+            </div>
+            <div class="compact-meta">Balanced governance vote with moderate privacy and good scale.</div>
+          </button>
+          <button type="button" class="template-card" data-template-key="faculty_council">
+            <div class="template-card-head">
+              <span class="template-icon">FC</span>
+              <strong>Faculty Council</strong>
+            </div>
+            <div class="compact-meta">Institutional election with stronger transparency and controlled complexity.</div>
+          </button>
+          <button type="button" class="template-card" data-template-key="municipal_board">
+            <div class="template-card-head">
+              <span class="template-icon">MB</span>
+              <strong>Municipal Board</strong>
+            </div>
+            <div class="compact-meta">High-assurance configuration for public governance scenarios.</div>
+          </button>
+          <button type="button" class="template-card" data-template-key="national_demo">
+            <div class="template-card-head">
+              <span class="template-icon">ND</span>
+              <strong>National Demo</strong>
+            </div>
+            <div class="compact-meta">Maximum-protection example for high-stakes demonstration and defense.</div>
+          </button>
+        </div>
+        <div class="status-note ok" id="template-note" style="margin-top: 12px; display: none;"></div>
+      </div>
+      {% endif %}
+
+      {% set preview_profile = selected_election.profile if selected_election else security_profiles[0] %}
+      <div class="builder-layout">
+        <form action="{{ url_for('election_designer') }}" method="post" style="display: grid; gap: 12px;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+          <input type="hidden" name="action" value="{% if selected_election %}edit{% else %}create{% endif %}" />
+          {% if selected_election %}
+          <input type="hidden" name="election_id" value="{{ selected_election.id }}" />
+          {% endif %}
+          <div>
+            <label for="election_name" style="display: block; margin-bottom: 8px;">Election name</label>
+            <input class="prominent-input" id="election_name" name="election_name" value="{{ selected_election.name if selected_election else '' }}" placeholder="Protected Student Senate Election 2026" required>
+            <div class="field-lead">Use a clear public title. People should understand what this election is from the name alone.</div>
+          </div>
+          <div>
+            <label for="security_profile" style="display: block; margin-bottom: 8px;">Security profile</label>
+            <select id="security_profile" name="security_profile">
+              {% for profile in security_profiles %}
+              <option value="{{ profile.profile_key }}" {% if selected_election and selected_election.security_profile == profile.profile_key %}selected{% endif %}>{{ profile.label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% if not selected_election %}
+          <div>
+            <label for="status" style="display: block; margin-bottom: 8px;">Initial status</label>
+            <select id="status" name="status">
+              <option value="draft">Draft</option>
+              <option value="active">Active</option>
+              <option value="closed">Closed</option>
+            </select>
+          </div>
+          {% endif %}
+          <div>
+            <label for="election_options" style="display: block; margin-bottom: 8px;">Options, one per line</label>
+            <textarea id="election_options" name="election_options" rows="8" required>{% if selected_election %}{{ selected_election.options|join('\n') }}{% endif %}</textarea>
+            <div class="compact-meta" style="margin-top: 8px;">Use one clean option per line. Duplicate lines are ignored automatically.</div>
+          </div>
+          <div>
+            <input id="election-submit" type="submit" value="{% if selected_election %}Update Election{% else %}Create Election{% endif %}">
+          </div>
+        </form>
+
+        <div class="builder-sidebar">
+          <div class="summary-card">
+            <div class="compact-meta">Live summary</div>
+            <strong id="summary-name">{{ selected_election.name if selected_election else 'Untitled election' }}</strong>
+            <div class="compact-meta" id="summary-profile" style="margin-top: 8px;">
+              {% if selected_election and selected_election.profile %}
+              {{ selected_election.profile.label }}
+              {% else %}
+              {{ security_profiles[0].label }}
+              {% endif %}
+            </div>
+            <div class="compact-meta" id="summary-status" style="margin-top: 4px;">
+              {% if selected_election %}
+              Draft editing mode
+              {% else %}
+              Initial status: draft
+              {% endif %}
+            </div>
+            <div class="validation-badges" id="validation-badges" style="margin-top: 12px;">
+              <div class="validation-badge waiting" id="badge-name">Name pending</div>
+              <div class="validation-badge waiting" id="badge-profile">Profile pending</div>
+              <div class="validation-badge waiting" id="badge-options">Options pending</div>
+            </div>
+          </div>
+
+          <div class="summary-card">
+            <div class="compact-meta">Selected profile</div>
+            <strong id="preview-label">{{ preview_profile.label }}</strong>
+            <div class="status-note ok" id="preview-rationale" style="margin-top: 10px;">{{ preview_profile.plain_language_rationale }}</div>
+            <div class="compact-meta" id="preview-description" style="margin-top: 8px;">{{ preview_profile.description }}</div>
+            <div class="mini-chart">
+              <div class="chart-row">
+                <div class="chart-label">Security</div>
+                <div class="chart-track"><div class="chart-fill" id="preview-security-bar" style="width: {{ preview_profile.security_score }}%;"></div></div>
+                <div class="chart-value" id="preview-security-value">{{ preview_profile.security_score }}%</div>
+              </div>
+              <div class="chart-row">
+                <div class="chart-label">Privacy</div>
+                <div class="chart-track"><div class="chart-fill privacy" id="preview-privacy-bar" style="width: {{ preview_profile.privacy_score }}%;"></div></div>
+                <div class="chart-value" id="preview-privacy-value">{{ preview_profile.privacy_score }}%</div>
+              </div>
+              <div class="chart-row">
+                <div class="chart-label">Transparency</div>
+                <div class="chart-track"><div class="chart-fill transparency" id="preview-transparency-bar" style="width: {{ preview_profile.transparency_score }}%;"></div></div>
+                <div class="chart-value" id="preview-transparency-value">{{ preview_profile.transparency_score }}%</div>
+              </div>
+              <div class="chart-row">
+                <div class="chart-label">Scalability</div>
+                <div class="chart-track"><div class="chart-fill scalability" id="preview-scalability-bar" style="width: {{ preview_profile.scalability_score }}%;"></div></div>
+                <div class="chart-value" id="preview-scalability-value">{{ preview_profile.scalability_score }}%</div>
+              </div>
+            </div>
+            <div class="radar-wrap" style="margin-top: 12px;">
+              <div class="compact-meta" style="margin-bottom: 8px;">Profile balance</div>
+              <svg class="radar-svg" viewBox="0 0 320 280" aria-label="Profile balance radar chart">
+                <polygon class="radar-grid-line" points="160,56 242,138 160,220 78,138"></polygon>
+                <polygon class="radar-grid-line" points="160,76.5 221.5,138 160,199.5 98.5,138"></polygon>
+                <polygon class="radar-grid-line" points="160,97 201,138 160,179 119,138"></polygon>
+                <polygon class="radar-grid-line" points="160,117.5 180.5,138 160,158.5 139.5,138"></polygon>
+                <line class="radar-axis" x1="160" y1="138" x2="160" y2="56"></line>
+                <line class="radar-axis" x1="160" y1="138" x2="242" y2="138"></line>
+                <line class="radar-axis" x1="160" y1="138" x2="160" y2="220"></line>
+                <line class="radar-axis" x1="160" y1="138" x2="78" y2="138"></line>
+                <polygon id="radar-shape" class="radar-shape" points=""></polygon>
+                <circle id="radar-point-security" class="radar-point" r="4" cx="160" cy="138"></circle>
+                <circle id="radar-point-privacy" class="radar-point" r="4" cx="160" cy="138"></circle>
+                <circle id="radar-point-transparency" class="radar-point" r="4" cx="160" cy="138"></circle>
+                <circle id="radar-point-scalability" class="radar-point" r="4" cx="160" cy="138"></circle>
+                <text class="radar-label" x="160" y="42">Security</text>
+                <text class="radar-label" x="268" y="142">Privacy</text>
+                <text class="radar-label" x="160" y="246">Transparency</text>
+                <text class="radar-label" x="52" y="142">Scalability</text>
+              </svg>
+            </div>
+            <div class="compact-meta" id="preview-mode" style="margin-top: 8px;">{{ preview_profile.protocol_mode }}</div>
+          </div>
+
+          <div class="summary-card">
+            <div class="compact-meta">Option quality</div>
+            <strong id="summary-option-count">0 options</strong>
+            <div class="compact-meta" id="summary-option-note" style="margin-top: 8px;">Add at least two unique options.</div>
+          </div>
+
+          <div class="summary-card">
+            <div class="compact-meta">Pre-flight checklist</div>
+            <div class="preflight-list" id="preflight-list" style="margin-top: 10px;">
+              <div class="preflight-item waiting" id="preflight-name">Election name must contain at least 5 characters.</div>
+              <div class="preflight-item waiting" id="preflight-profile">A security profile must be selected.</div>
+              <div class="preflight-item waiting" id="preflight-options">At least two unique options are required.</div>
+            </div>
+          </div>
+
+          <details class="summary-card">
+            <summary><strong>Open option preview</strong></summary>
+            <div class="option-preview" id="option-preview-list" style="margin-top: 12px;">
+              <div class="feature-item">No options entered yet.</div>
+            </div>
+          </details>
+
+          <details class="summary-card">
+            <summary><strong>Open profile details</strong></summary>
+            <div class="preview-stack" style="margin-top: 12px;">
+              <div>
+                <div class="compact-meta">Enabled protections</div>
+                <div class="feature-list" id="preview-enabled">
+                  {% for item in preview_profile.enabled_features %}
+                  <div class="feature-item">{{ item }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div>
+                <div class="compact-meta">Recommended use cases</div>
+                <div class="feature-list" id="preview-use-cases">
+                  {% for item in preview_profile.recommended_use_cases %}
+                  <div class="feature-item">{{ item }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div>
+                <div class="compact-meta">Current limits</div>
+                <div class="feature-list" id="preview-missing">
+                  {% for item in preview_profile.missing_features %}
+                  <div class="feature-item">{{ item }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div>
+                <div class="compact-meta">Not recommended for</div>
+                <div class="feature-list" id="preview-not-recommended">
+                  {% for item in preview_profile.not_recommended_for %}
+                  <div class="feature-item">{{ item }}</div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <details class="summary-card">
+            <summary><strong>Open profile impact</strong></summary>
+            <div class="preview-stack" style="margin-top: 12px;">
+              <div>
+                <strong id="impact-title">
+                  {% if selected_election %}
+                  Compared with current draft profile
+                  {% else %}
+                  New election profile summary
+                  {% endif %}
+                </strong>
+                <div class="compact-meta" id="impact-subtitle" style="margin-top: 8px;">
+                  {% if selected_election %}
+                  Baseline: {{ selected_election.profile.label }}
+                  {% else %}
+                  Choose a profile to inspect the trade-off before creating the event.
+                  {% endif %}
+                </div>
+              </div>
+              <div class="impact-grid" id="impact-deltas">
+                <div class="impact-box"><div class="compact-meta">Security delta</div><strong id="delta-security">0</strong></div>
+                <div class="impact-box"><div class="compact-meta">Privacy delta</div><strong id="delta-privacy">0</strong></div>
+                <div class="impact-box"><div class="compact-meta">Transparency delta</div><strong id="delta-transparency">0</strong></div>
+                <div class="impact-box"><div class="compact-meta">Scalability delta</div><strong id="delta-scalability">0</strong></div>
+              </div>
+              <div>
+                <div class="compact-meta">What improves</div>
+                <div class="feature-list" id="impact-added"></div>
+              </div>
+              <div>
+                <div class="compact-meta">What becomes harder or remains limited</div>
+                <div class="feature-list" id="impact-removed"></div>
+              </div>
+              <div class="status-note ok" id="impact-summary">
+                This profile defines the current balance between protocol strength and scalability.
+              </div>
+            </div>
+          </details>
+        </div>
+      </div>
+      {% if selected_election %}
+      <div class="status-note warn" style="margin-top: 14px;">
+        Only draft elections should be edited before launch. Once voting has started, the configuration should be treated as fixed for transparency and auditability.
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="panel" id="security-profiles">
+      <details class="compact-disclosure" open>
+        <summary>
+          <div>
+            <p class="eyebrow">Security Profiles</p>
+            <div class="compact-meta">Compare profiles only when needed. For most cases, the selected profile summary above is enough.</div>
+          </div>
+        </summary>
+        <div style="margin-top: 14px;">
+          <div class="profile-grid">
+            {% for profile in security_profiles %}
+            <div class="profile-card {% if selected_election and selected_election.security_profile == profile.profile_key %}active-profile{% endif %}">
+              <div style="display: flex; justify-content: space-between; gap: 10px; align-items: start;">
+                <strong>{{ profile.label }}</strong>
+                <span class="profile-chip">{{ profile.protocol_mode }}</span>
+              </div>
+              <div class="compact-meta" style="margin-top: 8px;">{{ profile.description }}</div>
+              <div class="status-note ok" style="margin-top: 10px;">
+                {{ profile.plain_language_rationale }}
+              </div>
+              <div class="mini-chart">
+                <div class="chart-row">
+                  <div class="chart-label">Security</div>
+                  <div class="chart-track"><div class="chart-fill" style="width: {{ profile.security_score }}%;"></div></div>
+                  <div class="chart-value">{{ profile.security_score }}%</div>
+                </div>
+                <div class="chart-row">
+                  <div class="chart-label">Privacy</div>
+                  <div class="chart-track"><div class="chart-fill privacy" style="width: {{ profile.privacy_score }}%;"></div></div>
+                  <div class="chart-value">{{ profile.privacy_score }}%</div>
+                </div>
+                <div class="chart-row">
+                  <div class="chart-label">Transparency</div>
+                  <div class="chart-track"><div class="chart-fill transparency" style="width: {{ profile.transparency_score }}%;"></div></div>
+                  <div class="chart-value">{{ profile.transparency_score }}%</div>
+                </div>
+                <div class="chart-row">
+                  <div class="chart-label">Scalability</div>
+                  <div class="chart-track"><div class="chart-fill scalability" style="width: {{ profile.scalability_score }}%;"></div></div>
+                  <div class="chart-value">{{ profile.scalability_score }}%</div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <details class="compact-disclosure" style="margin-top: 16px;">
+            <summary><strong>Open detailed profile comparison</strong></summary>
+            <div class="compare-table-shell" style="margin-top: 12px;">
+              <table>
+                <tr>
+                  <th>Profile</th>
+                  <th>Security</th>
+                  <th>Privacy</th>
+                  <th>Transparency</th>
+                  <th>Scalability</th>
+                  <th>Anonymous token</th>
+                  <th>Blind signature</th>
+                  <th>Encrypted ballot</th>
+                  <th>Receipt verification</th>
+                  <th>Threshold tally</th>
+                  <th>Ballot proofs</th>
+                  <th>Best fit</th>
+                </tr>
+                {% for profile in security_profiles %}
+                {% set enabled = profile.enabled_features|join(' ') %}
+                <tr>
+                  <td>
+                    <strong>{{ profile.label }}</strong>
+                    <div class="compact-meta">{{ profile.protocol_mode }}</div>
+                  </td>
+                  <td>{{ profile.security_score }}</td>
+                  <td>{{ profile.privacy_score }}</td>
+                  <td>{{ profile.transparency_score }}</td>
+                  <td>{{ profile.scalability_score }}</td>
+                  <td>{% if 'anonymous token' in enabled|lower %}<span class="check">Yes</span>{% else %}<span class="minus">No</span>{% endif %}</td>
+                  <td>{% if 'blind signature' in enabled|lower %}<span class="check">Yes</span>{% else %}<span class="minus">No</span>{% endif %}</td>
+                  <td>{% if 'encrypted ballot' in enabled|lower %}<span class="check">Yes</span>{% else %}<span class="minus">No</span>{% endif %}</td>
+                  <td>{% if 'receipt' in enabled|lower %}<span class="check">Yes</span>{% else %}<span class="minus">No</span>{% endif %}</td>
+                  <td>{% if 'threshold' in enabled|lower %}<span class="check">Yes</span>{% else %}<span class="minus">No</span>{% endif %}</td>
+                  <td>{% if 'proof' in enabled|lower %}<span class="check">Yes</span>{% else %}<span class="minus">No</span>{% endif %}</td>
+                  <td>{{ profile.recommended_use_cases[0] if profile.recommended_use_cases else 'General purpose' }}</td>
+                </tr>
+                {% endfor %}
+              </table>
+            </div>
+          </details>
+        </div>
+      </details>
+    </div>
+
+    <div class="panel" id="manage-elections">
+      <details class="compact-disclosure">
+        <summary>
+          <div>
+            <p class="eyebrow">Manage Existing Elections</p>
+            <div class="compact-meta">Open a draft to edit it, or change lifecycle state from the registry.</div>
+          </div>
+        </summary>
+        <div class="registry-grid" style="margin-top: 14px;">
+          {% for election in elections %}
+          <div class="election-card">
+            <strong>{{ election.name }}</strong>
+            <div class="compact-meta" style="margin-top: 6px;">Status: {{ election.status }} | Profile: {{ election.profile.label }}</div>
+            <div class="compact-meta" style="margin-top: 6px;">Options: {{ election.options|join(', ') }}</div>
+            <div class="compact-meta" style="margin-top: 6px;">
+              S {{ election.security_score }} | P {{ election.privacy_score }} | T {{ election.transparency_score }} | Sc {{ election.scalability_score }}
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;">
+              <a href="{{ url_for('election_designer', edit_id=election.id) }}"><button type="button">Open</button></a>
+              <form action="{{ url_for('election_designer') }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+                <input type="hidden" name="action" value="set_status" />
+                <input type="hidden" name="election_id" value="{{ election.id }}" />
+                <button type="submit" name="status" value="draft">Draft</button>
+                <button type="submit" name="status" value="active">Activate</button>
+                <button type="submit" name="status" value="closed">Close</button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </details>
+      <div style="display: grid; gap: 10px; margin-top: 16px;">
+        <a href="{{ url_for('audit_dashboard') }}"><button type="button">Open Audit Dashboard</button></a>
+        <a href="{{ url_for('index') }}"><button type="button">Back to Protocol</button></a>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  (function() {
+    const profiles = {{ security_profiles|tojson }};
+    const templates = {
+      student_senate: {
+        name: "Protected Student Senate Election",
+        security_profile: "standard",
+        status: "draft",
+        options: ["Candidate A", "Candidate B", "Candidate C"]
+      },
+      faculty_council: {
+        name: "Faculty Council Election",
+        security_profile: "standard",
+        status: "draft",
+        options: ["Faculty List Alpha", "Faculty List Beta", "Faculty List Gamma"]
+      },
+      municipal_board: {
+        name: "Municipal Board Election",
+        security_profile: "high_assurance",
+        status: "draft",
+        options: ["Civic Alliance", "Public Reform Group", "Independent List"]
+      },
+      national_demo: {
+        name: "National Election Demonstration",
+        security_profile: "maximum_protection",
+        status: "draft",
+        options: ["National Party A", "National Party B", "National Party C"]
+      }
+    };
+    const baselineKey = {{ (selected_election.security_profile if selected_election else '')|tojson }};
+    const select = document.getElementById("security_profile");
+    const nameInput = document.getElementById("election_name");
+    const statusSelect = document.getElementById("status");
+    const optionsInput = document.getElementById("election_options");
+    const templateNote = document.getElementById("template-note");
+    if (!select) return;
+    const byKey = Object.fromEntries(profiles.map((profile) => [profile.profile_key, profile]));
+
+    function parseOptions(rawText) {
+      const seen = new Set();
+      return (rawText || "")
+        .split("\n")
+        .map((item) => item.trim())
+        .filter(Boolean)
+        .filter((item) => {
+          const key = item.toLowerCase();
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+    }
+
+    function renderList(containerId, items) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
+      (items || []).forEach((item) => {
+        const div = document.createElement("div");
+        div.className = "feature-item";
+        div.textContent = item;
+        container.appendChild(div);
+      });
+    }
+
+    function formatDelta(value) {
+      if (value > 0) return "+" + value;
+      return String(value);
+    }
+
+    function deltaClass(value) {
+      if (value > 0) return "delta-up";
+      if (value < 0) return "delta-down";
+      return "delta-flat";
+    }
+
+    function renderImpactList(containerId, items, emptyText) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = "";
+      if (!items || items.length === 0) {
+        const div = document.createElement("div");
+        div.className = "feature-item";
+        div.textContent = emptyText;
+        container.appendChild(div);
+        return;
+      }
+      items.forEach((item) => {
+        const div = document.createElement("div");
+        div.className = "feature-item";
+        div.textContent = item;
+        container.appendChild(div);
+      });
+    }
+
+    function setDelta(id, value) {
+      const element = document.getElementById(id);
+      element.textContent = formatDelta(value);
+      element.className = deltaClass(value);
+    }
+
+    function buildImpactSummary(profile, baseline) {
+      if (!baseline) {
+        return "This profile sets the initial balance between protection strength, protocol transparency, and expected system throughput for a new election.";
+      }
+
+      const strongerSecurity = profile.security_score > baseline.security_score;
+      const strongerPrivacy = profile.privacy_score > baseline.privacy_score;
+      const lowerScalability = profile.scalability_score < baseline.scalability_score;
+
+      if (strongerSecurity && strongerPrivacy && lowerScalability) {
+        return "This change strengthens protection and confidentiality, but increases protocol overhead and reduces projected scalability.";
+      }
+      if (profile.scalability_score > baseline.scalability_score && profile.security_score < baseline.security_score) {
+        return "This change simplifies the protocol and improves scalability, but reduces the strength of advanced protections and public proof coverage.";
+      }
+      if (profile.security_score === baseline.security_score &&
+          profile.privacy_score === baseline.privacy_score &&
+          profile.transparency_score === baseline.transparency_score &&
+          profile.scalability_score === baseline.scalability_score) {
+        return "This keeps the current protection profile unchanged.";
+      }
+      return "This change shifts the protocol trade-off across security, privacy, transparency, and scalability. Review the enabled and missing protections before launch.";
+    }
+
+    function updateImpact(profile) {
+      const baseline = baselineKey ? byKey[baselineKey] : null;
+      const added = baseline
+        ? (profile.enabled_features || []).filter((item) => !(baseline.enabled_features || []).includes(item))
+        : (profile.enabled_features || []);
+      const removed = baseline
+        ? (profile.missing_features || []).filter((item) => !(baseline.missing_features || []).includes(item))
+        : (profile.missing_features || []);
+
+      document.getElementById("impact-title").textContent = baseline
+        ? "Compared with current draft profile"
+        : "New election profile summary";
+      document.getElementById("impact-subtitle").textContent = baseline
+        ? "Baseline: " + baseline.label
+        : "Choose a profile to inspect the protection and scalability trade-off before creating the event.";
+
+      setDelta("delta-security", profile.security_score - (baseline ? baseline.security_score : 0));
+      setDelta("delta-privacy", profile.privacy_score - (baseline ? baseline.privacy_score : 0));
+      setDelta("delta-transparency", profile.transparency_score - (baseline ? baseline.transparency_score : 0));
+      setDelta("delta-scalability", profile.scalability_score - (baseline ? baseline.scalability_score : 0));
+
+      renderImpactList("impact-added", added, baseline ? "No new protections relative to the current draft profile." : "These protections define the selected profile.");
+      renderImpactList("impact-removed", removed, baseline ? "No additional limitations relative to the current draft profile." : "These are the main current limits of the selected profile.");
+      document.getElementById("impact-summary").textContent = buildImpactSummary(profile, baseline);
+    }
+
+    function updatePreview() {
+      const profile = byKey[select.value];
+      if (!profile) return;
+      document.getElementById("preview-label").textContent = profile.label;
+      document.getElementById("preview-description").textContent = profile.description;
+      document.getElementById("preview-rationale").textContent = profile.plain_language_rationale;
+      document.getElementById("preview-mode").textContent = profile.protocol_mode;
+      document.getElementById("preview-security-bar").style.width = profile.security_score + "%";
+      document.getElementById("preview-privacy-bar").style.width = profile.privacy_score + "%";
+      document.getElementById("preview-transparency-bar").style.width = profile.transparency_score + "%";
+      document.getElementById("preview-scalability-bar").style.width = profile.scalability_score + "%";
+      document.getElementById("preview-security-value").textContent = profile.security_score + "%";
+      document.getElementById("preview-privacy-value").textContent = profile.privacy_score + "%";
+      document.getElementById("preview-transparency-value").textContent = profile.transparency_score + "%";
+      document.getElementById("preview-scalability-value").textContent = profile.scalability_score + "%";
+      updateRadar(profile);
+      renderList("preview-enabled", profile.enabled_features);
+      renderList("preview-use-cases", profile.recommended_use_cases);
+      renderList("preview-missing", profile.missing_features);
+      renderList("preview-not-recommended", profile.not_recommended_for);
+      updateImpact(profile);
+      updateBuilderSummary();
+    }
+
+    function axisPoint(value, direction) {
+      const ratio = Math.max(0, Math.min(100, value)) / 100;
+      const radius = 82 * ratio;
+      const cx = 160;
+      const cy = 138;
+      if (direction === "up") return [cx, cy - radius];
+      if (direction === "right") return [cx + radius, cy];
+      if (direction === "down") return [cx, cy + radius];
+      return [cx - radius, cy];
+    }
+
+    function updateRadar(profile) {
+      const shape = document.getElementById("radar-shape");
+      if (!shape) return;
+      const securityPoint = axisPoint(profile.security_score, "up");
+      const privacyPoint = axisPoint(profile.privacy_score, "right");
+      const transparencyPoint = axisPoint(profile.transparency_score, "down");
+      const scalabilityPoint = axisPoint(profile.scalability_score, "left");
+      const polygon = [
+        securityPoint.join(","),
+        privacyPoint.join(","),
+        transparencyPoint.join(","),
+        scalabilityPoint.join(",")
+      ].join(" ");
+
+      shape.setAttribute("points", polygon);
+      document.getElementById("radar-point-security").setAttribute("cx", securityPoint[0]);
+      document.getElementById("radar-point-security").setAttribute("cy", securityPoint[1]);
+      document.getElementById("radar-point-privacy").setAttribute("cx", privacyPoint[0]);
+      document.getElementById("radar-point-privacy").setAttribute("cy", privacyPoint[1]);
+      document.getElementById("radar-point-transparency").setAttribute("cx", transparencyPoint[0]);
+      document.getElementById("radar-point-transparency").setAttribute("cy", transparencyPoint[1]);
+      document.getElementById("radar-point-scalability").setAttribute("cx", scalabilityPoint[0]);
+      document.getElementById("radar-point-scalability").setAttribute("cy", scalabilityPoint[1]);
+    }
+
+    function updateBuilderSummary() {
+      const options = parseOptions(optionsInput ? optionsInput.value : "");
+      const selectedProfile = byKey[select.value];
+      const summaryName = document.getElementById("summary-name");
+      const summaryProfile = document.getElementById("summary-profile");
+      const summaryStatus = document.getElementById("summary-status");
+      const summaryOptionCount = document.getElementById("summary-option-count");
+      const summaryOptionNote = document.getElementById("summary-option-note");
+      const optionPreviewList = document.getElementById("option-preview-list");
+      const badgeName = document.getElementById("badge-name");
+      const badgeProfile = document.getElementById("badge-profile");
+      const badgeOptions = document.getElementById("badge-options");
+      const preflightName = document.getElementById("preflight-name");
+      const preflightProfile = document.getElementById("preflight-profile");
+      const preflightOptions = document.getElementById("preflight-options");
+      const submitButton = document.getElementById("election-submit");
+      if (!summaryName) return;
+
+      const hasName = Boolean(nameInput && nameInput.value.trim().length >= 5);
+      const hasProfile = Boolean(selectedProfile);
+      const optionsReady = options.length >= 2;
+      summaryName.textContent = (nameInput && nameInput.value.trim()) || "Untitled election";
+      summaryProfile.textContent = selectedProfile ? selectedProfile.label : "No profile selected";
+      summaryStatus.textContent = statusSelect ? ("Initial status: " + statusSelect.value) : "Draft editing mode";
+      summaryOptionCount.textContent = options.length + (options.length === 1 ? " option" : " options");
+      summaryOptionNote.textContent = optionsReady
+        ? "Ready: enough unique options entered."
+        : "Add at least two unique options.";
+      if (badgeName) {
+        badgeName.textContent = hasName ? "Name ready" : "Name pending";
+        badgeName.className = "validation-badge " + (hasName ? "ready" : "waiting");
+      }
+      if (badgeProfile) {
+        badgeProfile.textContent = hasProfile ? "Profile ready" : "Profile pending";
+        badgeProfile.className = "validation-badge " + (hasProfile ? "ready" : "waiting");
+      }
+      if (badgeOptions) {
+        badgeOptions.textContent = optionsReady ? "Options ready" : "Options pending";
+        badgeOptions.className = "validation-badge " + (optionsReady ? "ready" : "waiting");
+      }
+      if (preflightName) {
+        preflightName.className = "preflight-item " + (hasName ? "ready" : "waiting");
+      }
+      if (preflightProfile) {
+        preflightProfile.className = "preflight-item " + (hasProfile ? "ready" : "waiting");
+      }
+      if (preflightOptions) {
+        preflightOptions.className = "preflight-item " + (optionsReady ? "ready" : "waiting");
+      }
+      if (submitButton) {
+        submitButton.disabled = !(hasName && hasProfile && optionsReady);
+      }
+
+      const reviewReady = hasName && hasProfile && optionsReady;
+      setStepState("step-name", "step-name-state", hasName ? "complete" : "active");
+      setStepState("step-profile", "step-profile-state", hasName ? (hasProfile ? "complete" : "active") : "pending");
+      setStepState("step-options", "step-options-state", hasName && hasProfile ? (optionsReady ? "complete" : "active") : "pending");
+      setStepState("step-review", "step-review-state", hasName && hasProfile && optionsReady ? "active" : "pending");
+
+      optionPreviewList.innerHTML = "";
+      if (!options.length) {
+        const empty = document.createElement("div");
+        empty.className = "feature-item";
+        empty.textContent = "No options entered yet.";
+        optionPreviewList.appendChild(empty);
+        return;
+      }
+      options.forEach((option, index) => {
+        const div = document.createElement("div");
+        div.className = "feature-item";
+        div.textContent = (index + 1) + ". " + option;
+        optionPreviewList.appendChild(div);
+      });
+    }
+
+    function setStepState(stepId, badgeId, state) {
+      const step = document.getElementById(stepId);
+      const badge = document.getElementById(badgeId);
+      if (!step || !badge) return;
+      step.classList.remove("active-step", "complete-step", "pending-step");
+      badge.classList.remove("active", "complete", "pending");
+      if (state === "complete") {
+        step.classList.add("complete-step");
+        badge.classList.add("complete");
+        badge.textContent = "Ready";
+        return;
+      }
+      if (state === "active") {
+        step.classList.add("active-step");
+        badge.classList.add("active");
+        badge.textContent = "Now";
+        return;
+      }
+      step.classList.add("pending-step");
+      badge.classList.add("pending");
+      badge.textContent = "Pending";
+    }
+
+    function applyTemplate(templateKey) {
+      const template = templates[templateKey];
+      if (!template) return;
+      document.querySelectorAll("[data-template-key]").forEach((button) => {
+        button.classList.toggle("active-template", button.getAttribute("data-template-key") === templateKey);
+      });
+      if (nameInput) nameInput.value = template.name;
+      if (select) select.value = template.security_profile;
+      if (statusSelect) statusSelect.value = template.status;
+      if (optionsInput) optionsInput.value = template.options.join("\n");
+      if (templateNote) {
+        const profile = byKey[template.security_profile];
+        templateNote.style.display = "block";
+        templateNote.textContent = "Template applied. Recommended profile set to " + (profile ? profile.label : template.security_profile) + ".";
+      }
+      updatePreview();
+      updateBuilderSummary();
+    }
+
+    select.addEventListener("change", updatePreview);
+    if (nameInput) nameInput.addEventListener("input", updateBuilderSummary);
+    if (statusSelect) statusSelect.addEventListener("change", updateBuilderSummary);
+    if (optionsInput) optionsInput.addEventListener("input", updateBuilderSummary);
+    document.querySelectorAll("[data-template-key]").forEach((button) => {
+      button.addEventListener("click", function() {
+        applyTemplate(this.getAttribute("data-template-key"));
+      });
+    });
+    updatePreview();
+    updateBuilderSummary();
+  })();
+</script>
+{% endblock %}

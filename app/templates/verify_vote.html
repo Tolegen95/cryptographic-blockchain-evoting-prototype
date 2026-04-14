@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .verify-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+    gap: 20px;
+    align-items: start;
+  }
+
+  .verify-stack {
+    display: grid;
+    gap: 18px;
+  }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .result-card {
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: var(--radius-md);
+    padding: 12px;
+  }
+
+  @media (max-width: 900px) {
+    .verify-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .result-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="verify-layout">
+  <div class="verify-stack">
+    <div class="panel panel-strong">
+      <p class="eyebrow">Individual Verifiability</p>
+      <h2 class="section-title">Verify receipt inclusion</h2>
+      <p class="compact-meta">Check that your encrypted ballot was recorded and confirm its final status.</p>
+    </div>
+
+    <div class="panel">
+      {% if latest_receipt_hash %}
+      <div class="status-note ok" style="margin-bottom: 14px;">
+        Your latest receipt was restored automatically. You can verify it below without entering it again.
+      </div>
+      {% endif %}
+      <form action="{{ url_for('verify_vote') }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+        <label for="vote_signature" style="display: block; margin-bottom: 8px;">Receipt hash</label>
+        <input
+          id="vote_signature"
+          class="mono"
+          type="text"
+          name="vote_signature"
+          placeholder="Paste 64-character receipt hash"
+          value="{{ verification.receipt_hash if verification else '' }}"
+        />
+        <div style="margin-top: 14px;">
+          <input type="submit" value="Verify Receipt">
+        </div>
+      </form>
+    </div>
+
+    <div class="panel">
+      <p class="eyebrow">Verification Result</p>
+      {% if verification %}
+        {% if verification.found %}
+          <div class="status-note ok">
+            <strong>Receipt located.</strong> The encrypted ballot is present in local storage.
+          </div>
+          <div class="result-grid">
+            <div class="result-card">
+              <div class="compact-meta">Status</div>
+              <strong>{{ verification.status }}</strong>
+            </div>
+            <div class="result-card">
+              <div class="compact-meta">Election</div>
+              <strong>{{ verification.election_name }}</strong>
+            </div>
+            <div class="result-card">
+              <div class="compact-meta">Block index</div>
+              <strong>{{ verification.block_index if verification.block_index is not none else 'Pending' }}</strong>
+            </div>
+          </div>
+          <details class="disclosure" style="margin-top: 14px;">
+            <summary>Open detailed verification data</summary>
+            <div class="disclosure-body" style="display: grid; gap: 10px;">
+              <div><strong>Submitted:</strong> {{ readable_time(verification.tx_timestamp) }}</div>
+              <div><strong>Token fingerprint:</strong> <span class="mono">{{ verification.token_fingerprint }}</span></div>
+              <div><strong>Receipt hash:</strong> <span class="mono">{{ verification.receipt_hash }}</span></div>
+            </div>
+          </details>
+          <details class="disclosure" style="margin-top: 14px;">
+            <summary>Reveal recorded choice</summary>
+            <div class="disclosure-body" style="display: grid; gap: 10px;">
+              <div class="status-note warn" style="margin: 0;">
+                Use this only for personal verification. In a production public voting system, direct choice reveal should be removed or replaced by stronger cryptographic verification.
+              </div>
+              <div><strong>Recorded choice:</strong> {{ verification.selection }}</div>
+            </div>
+          </details>
+        {% else %}
+          <div class="status-note error">Receipt hash not found in local ballot storage.</div>
+        {% endif %}
+      {% else %}
+        <div class="status-note warn">No receipt queried yet. Submit a receipt hash to verify your ballot.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="verify-stack">
+    <div class="panel">
+      <p class="eyebrow">Session</p>
+      <h3 class="section-title">{{ voter_id }}</h3>
+      <p class="compact-meta">Role: {{ role }}</p>
+    </div>
+
+    <div class="panel">
+      <p class="eyebrow">Public Board</p>
+      <h3 class="section-title">{{ bulletin_board_count }}</h3>
+      <p class="compact-meta">Encrypted entries currently shown on the bulletin board.</p>
+      <div style="margin-top: 12px;">
+        <a href="{{ url_for('research_dashboard') }}"><button type="button">Open Research Dashboard</button></a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

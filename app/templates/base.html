@@ -1,0 +1,589 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+      :root {
+        --bg: #f3f1ea;
+        --panel: #fffdf8;
+        --panel-strong: #f7f2e7;
+        --ink: #1d2a2a;
+        --muted: #5f6d67;
+        --line: #d7cfbf;
+        --accent: #1f5c57;
+        --accent-soft: #e3efed;
+        --warn-bg: #fff2de;
+        --warn-line: #d7a55b;
+        --danger-bg: #fde8e3;
+        --danger-line: #cf7f6f;
+        --ok-bg: #e7f4eb;
+        --ok-line: #70a37f;
+        --shadow-soft: 0 14px 34px rgba(39, 45, 39, 0.06);
+        --shadow-card: 0 8px 20px rgba(39, 45, 39, 0.05);
+        --radius-lg: 18px;
+        --radius-md: 14px;
+        --radius-sm: 10px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        background: radial-gradient(circle at top left, #faf7ef 0%, var(--bg) 48%, #ebe6d8 100%);
+        color: var(--ink);
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      .shell {
+        max-width: 1240px;
+        margin: 0 auto;
+        padding: 28px 18px 40px;
+      }
+
+      body.presentation-mode {
+        background: linear-gradient(180deg, #f8f4ea 0%, #eee6d3 100%);
+      }
+
+      body.presentation-mode .shell {
+        max-width: 1360px;
+        padding-top: 20px;
+      }
+
+      .topbar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 18px;
+        margin-bottom: 24px;
+        padding: 20px 22px;
+        border: 1px solid #cfc5b1;
+        border-radius: var(--radius-lg);
+        background:
+          linear-gradient(180deg, rgba(255, 253, 248, 0.96) 0%, rgba(249, 244, 233, 0.92) 100%);
+        box-shadow: var(--shadow-soft);
+        backdrop-filter: blur(8px);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .topbar::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 4px;
+        background: linear-gradient(90deg, #1f5c57 0%, #6b8f87 48%, #d5c39c 100%);
+      }
+
+      .topbar-main {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 14px;
+        align-items: start;
+      }
+
+      .brand-seal {
+        width: 58px;
+        height: 58px;
+        border-radius: 18px;
+        border: 1px solid #b9ac91;
+        background:
+          radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 36%),
+          linear-gradient(180deg, #234f4c 0%, #163d39 100%);
+        color: #fbf7ef;
+        display: grid;
+        place-items: center;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.14),
+          0 10px 18px rgba(26, 49, 47, 0.14);
+        position: relative;
+      }
+
+      .brand-seal::before {
+        content: "";
+        position: absolute;
+        inset: 9px;
+        border: 1px solid rgba(255, 248, 231, 0.28);
+        border-radius: 13px;
+      }
+
+      .brand-seal-mark {
+        position: relative;
+        display: grid;
+        justify-items: center;
+        gap: 1px;
+        line-height: 1;
+      }
+
+      .brand-seal-mark strong {
+        font-size: 18px;
+        letter-spacing: 0.08em;
+      }
+
+      .brand-seal-mark span {
+        font-size: 8px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow {
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 12px;
+        color: var(--muted);
+        margin: 0 0 8px;
+      }
+
+      .page-title {
+        margin: 0;
+        font-size: 26px;
+        line-height: 1.05;
+      }
+
+      .page-subtitle {
+        margin: 6px 0 0;
+        color: var(--muted);
+        max-width: 620px;
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      .nav-sections {
+        display: grid;
+        gap: 8px;
+        justify-items: end;
+      }
+
+      .nav-group {
+        display: grid;
+        gap: 6px;
+        justify-items: end;
+      }
+
+      .nav-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: flex-end;
+        align-items: center;
+      }
+
+      .nav-caption {
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .topbar-side {
+        display: grid;
+        gap: 12px;
+        justify-items: end;
+      }
+
+      .session-strip {
+        display: inline-flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .session-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 11px;
+        border: 1px solid #d3cab7;
+        border-radius: 999px;
+        background: rgba(255, 253, 248, 0.9);
+      }
+
+      .session-role {
+        text-transform: capitalize;
+      }
+
+      .session-link {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      .nav-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 13px;
+        border: 1px solid #d3cab7;
+        background: rgba(255, 253, 248, 0.92);
+        text-decoration: none;
+        color: var(--ink);
+        font-size: 13px;
+        border-radius: 999px;
+        transition: background 120ms ease, border-color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+      }
+
+      .nav-chip.secondary {
+        padding: 6px 10px;
+        font-size: 12px;
+        background: rgba(255, 253, 248, 0.72);
+      }
+
+      .brand-lockup {
+        display: grid;
+        gap: 4px;
+      }
+
+      .brand-mark {
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .brand-divider {
+        width: 72px;
+        height: 2px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--accent) 0%, rgba(31, 92, 87, 0.12) 100%);
+        margin-top: 4px;
+      }
+
+      .nav-secondary {
+        opacity: 0.9;
+      }
+
+      .nav-chip:hover {
+        background: #fff;
+        border-color: #b9b09e;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 16px rgba(40, 45, 39, 0.06);
+      }
+
+      .nav-chip.active {
+        background: var(--accent);
+        color: #f8f5ed;
+        border-color: #23403d;
+      }
+
+      .flash-stack {
+        margin: 0 0 18px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .flash {
+        padding: 11px 14px;
+        border: 1px solid #d2c8b5;
+        background: linear-gradient(180deg, rgba(255, 253, 248, 0.98) 0%, rgba(249, 244, 236, 0.94) 100%);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-card);
+      }
+
+      .flash.error {
+        color: #7d2317;
+        background: var(--danger-bg);
+        border-color: var(--danger-line);
+      }
+
+      .flash.success,
+      .flash.info {
+        color: #17413b;
+        background: var(--accent-soft);
+        border-color: #9ac0b9;
+      }
+
+      .panel {
+        border: 1px solid #d2c8b5;
+        background: linear-gradient(180deg, rgba(255, 253, 248, 0.98) 0%, rgba(250, 246, 238, 0.96) 100%);
+        padding: 19px;
+        border-radius: var(--radius-lg);
+        box-shadow: 0 10px 22px rgba(39, 45, 39, 0.05);
+      }
+
+      .panel-strong {
+        background: linear-gradient(180deg, #faf5ea 0%, #f4ecdc 100%);
+      }
+
+      .section-title {
+        margin: 0 0 10px;
+        font-size: 20px;
+      }
+
+      .status-note {
+        padding: 11px 13px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-md);
+        line-height: 1.45;
+      }
+
+      .status-note.ok {
+        background: var(--ok-bg);
+        border-color: var(--ok-line);
+      }
+
+      .status-note.warn {
+        background: var(--warn-bg);
+        border-color: var(--warn-line);
+      }
+
+      .status-note.error {
+        background: var(--danger-bg);
+        border-color: var(--danger-line);
+      }
+
+      .mono {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        word-break: break-word;
+      }
+
+      .compact-meta {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      button,
+      input[type="submit"] {
+        appearance: none;
+        border: 1px solid #23403d;
+        background: linear-gradient(180deg, #235e59 0%, #1c4f4a 100%);
+        color: #f8f5ed;
+        padding: 10px 15px;
+        cursor: pointer;
+        font: inherit;
+        border-radius: 999px;
+        box-shadow: 0 8px 16px rgba(24, 73, 68, 0.12);
+        transition: transform 120ms ease, opacity 120ms ease, background 120ms ease, box-shadow 120ms ease;
+      }
+
+      button:hover,
+      input[type="submit"]:hover {
+        transform: translateY(-1px);
+        background: linear-gradient(180deg, #1f5752 0%, #184944 100%);
+        box-shadow: 0 10px 18px rgba(24, 73, 68, 0.16);
+      }
+
+      button[disabled],
+      input[type="submit"][disabled] {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      input[type="text"],
+      input[type="password"],
+      select,
+      textarea {
+        width: 100%;
+        padding: 11px 12px;
+        border: 1px solid #d2c8b5;
+        background: rgba(255, 255, 255, 0.96);
+        font: inherit;
+        border-radius: var(--radius-sm);
+        box-shadow: inset 0 1px 2px rgba(35, 44, 41, 0.03);
+      }
+
+      input[type="text"]:focus,
+      input[type="password"]:focus,
+      select:focus,
+      textarea:focus {
+        outline: 2px solid rgba(31, 92, 87, 0.18);
+        border-color: #9eb7b2;
+      }
+
+      .surface-card {
+        border: 1px solid #d5ccba;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: var(--radius-md);
+        padding: 14px;
+        box-shadow: 0 6px 14px rgba(39, 45, 39, 0.04);
+      }
+
+      .stack-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .disclosure {
+        border: 1px solid #d3cab8;
+        border-radius: var(--radius-md);
+        background: linear-gradient(180deg, rgba(255, 253, 248, 0.98) 0%, rgba(249, 244, 236, 0.96) 100%);
+        box-shadow: 0 8px 18px rgba(39, 45, 39, 0.04);
+      }
+
+      .disclosure > summary {
+        cursor: pointer;
+        list-style: none;
+        padding: 14px 16px;
+        font-weight: 600;
+        position: relative;
+      }
+
+      .disclosure > summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .disclosure > summary::after {
+        content: "+";
+        position: absolute;
+        right: 16px;
+        top: 13px;
+        color: var(--muted);
+      }
+
+      .disclosure[open] > summary::after {
+        content: "-";
+      }
+
+      .disclosure-body {
+        padding: 0 16px 16px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+        border-radius: var(--radius-md);
+        background: rgba(255, 255, 255, 0.94);
+      }
+
+      th,
+      td {
+        border: 1px solid #d9d0c0;
+        padding: 9px 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #f6efe1;
+        font-weight: 600;
+      }
+
+      @media (max-width: 900px) {
+        .topbar {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar-main {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar-side {
+          justify-items: start;
+        }
+
+        .nav-row {
+          justify-content: flex-start;
+        }
+
+        .nav-group {
+          justify-items: start;
+        }
+      }
+    </style>
+  </head>
+  <body class="{% if presentation_mode %}presentation-mode{% endif %}">
+    <div class="shell">
+    {% if not presentation_mode and request.endpoint != 'login' %}
+    <div class="topbar">
+      <div class="topbar-main">
+        <div class="brand-seal">
+          <div class="brand-seal-mark">
+            <strong>VT</strong>
+            <span>Gov</span>
+          </div>
+        </div>
+        <div class="brand-lockup">
+          <div class="brand-mark">Votonomy Secure Voting Platform</div>
+          <a href="/" style="text-decoration: none; color: inherit;"><h1 class="page-title">{{ title }}</h1></a>
+          <div class="brand-divider"></div>
+          <p class="page-subtitle">Protected electronic voting with verification, auditability, and configurable security profiles.</p>
+        </div>
+      </div>
+      <div class="topbar-side">
+        {% if current_voter_id %}
+        <div class="session-strip">
+          <div class="session-badge">
+            <strong>{{ current_voter_id }}</strong>
+            {% if current_role %}<span class="session-role">{{ current_role }}</span>{% endif %}
+          </div>
+          <a class="session-link" href="{{ url_for('logout') }}">Sign out</a>
+        </div>
+        {% endif %}
+        <div class="nav-sections">
+          {% if current_role == 'admin' %}
+          <div class="nav-group">
+            <div class="nav-caption">Workspace</div>
+            <div class="nav-row">
+              <a class="nav-chip {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">Control</a>
+              <a class="nav-chip {% if request.endpoint == 'election_designer' %}active{% endif %}" href="{{ url_for('election_designer') }}">Designer</a>
+              <a class="nav-chip {% if request.endpoint == 'audit_dashboard' %}active{% endif %}" href="{{ url_for('audit_dashboard') }}">Audit</a>
+            </div>
+          </div>
+          <div class="nav-group">
+            <div class="nav-caption">Review</div>
+            <div class="nav-row nav-secondary">
+              <a class="nav-chip secondary {% if request.endpoint == 'verify_vote' %}active{% endif %}" href="{{ url_for('verify_vote') }}">Verify</a>
+              <a class="nav-chip secondary {% if request.endpoint == 'research_dashboard' %}active{% endif %}" href="{{ url_for('research_dashboard') }}">Oversight</a>
+              <a class="nav-chip secondary {% if request.endpoint == 'security_model' %}active{% endif %}" href="{{ url_for('security_model') }}">Security</a>
+              <a class="nav-chip secondary {% if request.endpoint == 'defense_demo' %}active{% endif %}" href="{{ url_for('defense_demo') }}">Defense</a>
+              <a class="nav-chip secondary {% if request.endpoint == 'presentation_mode' %}active{% endif %}" href="{{ url_for('presentation_mode') }}">Demo</a>
+            </div>
+          </div>
+          {% elif current_role == 'auditor' %}
+          <div class="nav-group">
+            <div class="nav-caption">Workspace</div>
+            <div class="nav-row">
+              <a class="nav-chip {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">Overview</a>
+              <a class="nav-chip {% if request.endpoint == 'research_dashboard' %}active{% endif %}" href="{{ url_for('research_dashboard') }}">Inspection</a>
+              <a class="nav-chip {% if request.endpoint == 'audit_dashboard' %}active{% endif %}" href="{{ url_for('audit_dashboard') }}">Audit</a>
+            </div>
+          </div>
+          <div class="nav-group">
+            <div class="nav-caption">Review</div>
+            <div class="nav-row nav-secondary">
+              <a class="nav-chip secondary {% if request.endpoint == 'verify_vote' %}active{% endif %}" href="{{ url_for('verify_vote') }}">Verify</a>
+              <a class="nav-chip secondary {% if request.endpoint == 'security_model' %}active{% endif %}" href="{{ url_for('security_model') }}">Security</a>
+              <a class="nav-chip secondary {% if request.endpoint == 'defense_demo' %}active{% endif %}" href="{{ url_for('defense_demo') }}">Defense</a>
+              <a class="nav-chip secondary {% if request.endpoint == 'presentation_mode' %}active{% endif %}" href="{{ url_for('presentation_mode') }}">Demo</a>
+            </div>
+          </div>
+          {% else %}
+          <div class="nav-group">
+            <div class="nav-caption">Main</div>
+            <div class="nav-row">
+              <a class="nav-chip {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">Vote</a>
+              <a class="nav-chip {% if request.endpoint == 'verify_vote' %}active{% endif %}" href="{{ url_for('verify_vote') }}">Verify Vote</a>
+            </div>
+          </div>
+          <div class="nav-group">
+            <div class="nav-caption">Explore</div>
+            <div class="nav-row nav-secondary">
+              <a class="nav-chip secondary {% if request.endpoint == 'research_dashboard' %}active{% endif %}" href="{{ url_for('research_dashboard') }}">Research</a>
+              <a class="nav-chip secondary {% if request.endpoint == 'security_model' %}active{% endif %}" href="{{ url_for('security_model') }}">Security</a>
+              <a class="nav-chip secondary {% if request.endpoint == 'defense_demo' %}active{% endif %}" href="{{ url_for('defense_demo') }}">Defense</a>
+              <a class="nav-chip secondary {% if request.endpoint == 'presentation_mode' %}active{% endif %}" href="{{ url_for('presentation_mode') }}">Demo</a>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages and not presentation_mode %}
+    <div class="flash-stack">
+    {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+    </div>
+  </body>
+</html>

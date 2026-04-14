@@ -1,0 +1,851 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .protocol-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.8fr) minmax(320px, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
+
+  .protocol-layout.voter-mode {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .protocol-stack,
+  .sidebar-stack,
+  .recent-stack {
+    display: grid;
+    gap: 18px;
+    min-width: 0;
+  }
+
+  .hero-grid,
+  .status-grid,
+  .summary-grid,
+  .recent-grid {
+    display: grid;
+    gap: 14px;
+  }
+
+  .hero-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .status-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .step-card {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    padding: 18px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+  }
+
+  .step-card.active-step {
+    border-color: #9eb7b2;
+    box-shadow: 0 0 0 3px rgba(31, 92, 87, 0.08), var(--shadow-card);
+  }
+
+  .step-card.complete-step {
+    background: #f8fcf8;
+  }
+
+  .step-card.locked-step {
+    opacity: 0.72;
+  }
+
+  .step-label {
+    margin: 0 0 8px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 12px;
+  }
+
+  .step-title {
+    margin: 0 0 8px;
+    font-size: 22px;
+  }
+
+  .step-copy {
+    margin: 0 0 14px;
+    color: var(--muted);
+  }
+
+  .vote-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin: 0 0 16px;
+  }
+
+  .option-tile {
+    border: 1px solid var(--line);
+    background: #fff;
+    padding: 12px;
+    border-radius: var(--radius-md);
+    transition: border-color 120ms ease, background 120ms ease, transform 120ms ease;
+  }
+
+  .option-tile:hover {
+    border-color: #aeb7ae;
+    background: #fffcf6;
+    transform: translateY(-1px);
+  }
+
+  .inline-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .compact-card {
+    border: 1px solid var(--line);
+    background: var(--panel-strong);
+    padding: 16px;
+    border-radius: var(--radius-md);
+    min-width: 0;
+  }
+
+  .metric {
+    font-size: 28px;
+    margin: 0;
+  }
+
+  .metric-label {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .recent-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  .record-card {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    padding: 14px;
+    border-radius: var(--radius-md);
+    min-width: 0;
+  }
+
+  .record-card.pending {
+    background: #fff7ea;
+  }
+
+  .record-title {
+    margin: 0 0 8px;
+    font-size: 17px;
+  }
+
+  .record-meta {
+    margin: 0 0 6px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .flow-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .flow-node {
+    border: 1px solid var(--line);
+    background: #fff;
+    padding: 12px;
+    border-radius: var(--radius-md);
+    min-width: 0;
+  }
+
+  .profile-explainer {
+    display: grid;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .explainer-lead {
+    font-size: 15px;
+    color: var(--muted);
+  }
+
+  .summary-table td:last-child,
+  .summary-table th:last-child {
+    width: 140px;
+  }
+
+  .profile-score-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .action-banner {
+    display: grid;
+    gap: 14px;
+  }
+
+  .action-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .wizard-rail {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .wizard-step {
+    border: 1px solid var(--line);
+    background: #fff;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    display: grid;
+    gap: 4px;
+  }
+
+  .wizard-step.active {
+    border-color: #8eada6;
+    background: #f0f7f4;
+    box-shadow: 0 0 0 3px rgba(31, 92, 87, 0.08);
+  }
+
+  .wizard-step.complete {
+    border-color: #9cc6a4;
+    background: #eef8f1;
+  }
+
+  .wizard-step.locked {
+    opacity: 0.72;
+  }
+
+  .wizard-step .compact-meta {
+    margin: 0;
+  }
+
+  .action-pill {
+    border: 1px solid var(--line);
+    background: #fff;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+  }
+
+  .action-pill strong {
+    display: block;
+    margin-top: 4px;
+  }
+
+  .step-guidance {
+    margin-top: 12px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .choice-hint {
+    margin: 0 0 12px;
+    color: var(--muted);
+  }
+
+  .friendly-note {
+    font-size: 15px;
+    color: var(--muted);
+    margin-top: 10px;
+  }
+
+  .primary-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .vote-record-card {
+    border: 1px solid #bfd6cf;
+    background: #f6fbf8;
+    padding: 16px;
+    border-radius: var(--radius-md);
+    display: grid;
+    gap: 10px;
+  }
+
+  .verify-focus-card {
+    border: 1px solid #8eb9a7;
+    background: linear-gradient(180deg, #f6fbf8 0%, #edf7f1 100%);
+    padding: 18px;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 0 0 3px rgba(31, 92, 87, 0.08);
+    display: grid;
+    gap: 12px;
+  }
+
+  .vote-record-card .compact-meta {
+    margin: 0;
+  }
+
+  .focus-banner {
+    display: grid;
+    gap: 10px;
+    padding: 14px 16px;
+    border: 1px solid #c7d8d2;
+    background: linear-gradient(180deg, #f5fbf8 0%, #eef7f3 100%);
+    border-radius: var(--radius-md);
+  }
+
+  .focus-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .system-facts {
+    display: grid;
+    gap: 10px;
+  }
+
+  .table-shell {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .table-shell table {
+    min-width: 520px;
+  }
+
+  @media (max-width: 980px) {
+    .protocol-layout,
+    .hero-grid,
+    .status-grid,
+    .summary-grid,
+    .flow-strip,
+    .profile-score-grid,
+    .action-summary,
+    .wizard-rail {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="protocol-layout {% if role == 'voter' %}voter-mode{% endif %}">
+  <div class="protocol-stack">
+    <div class="panel panel-strong">
+      <p class="eyebrow">Voting Session</p>
+      <h2 class="section-title">
+        {% if role == 'voter' %}
+        Cast your vote
+        {% elif active_election %}
+        {{ active_election.name }}
+        {% else %}
+        Voting protocol
+        {% endif %}
+      </h2>
+      <p class="compact-meta">
+        {% if active_election %}
+        Election: {{ active_election.name }}
+        {% else %}
+        Role: {{ role }}
+        {% endif %}
+      </p>
+
+      <div class="action-banner" style="margin-top: 14px;">
+        {% if role != 'voter' %}
+        <div class="status-note warn">This account is for inspection only. Use research or audit pages instead of the voting flow.</div>
+        {% elif has_voted %}
+        <div class="status-note ok">Your vote is already recorded. You can now verify your receipt.</div>
+        {% elif token_ready %}
+        <div class="status-note ok">You are ready to vote. Choose one option below and submit it.</div>
+        {% else %}
+        <div class="status-note warn">You are signed in. Start by preparing your secure ballot.</div>
+        {% endif %}
+
+        {% if role == 'voter' %}
+        <div class="wizard-rail">
+          <div class="wizard-step {% if step1_complete %}complete{% elif step1_active %}active{% else %}locked{% endif %}">
+            <div class="compact-meta">Step 1</div>
+            <strong>Start securely</strong>
+            <div class="compact-meta">{% if step1_complete %}Done{% elif step1_active %}Do this now{% else %}Locked{% endif %}</div>
+          </div>
+          <div class="wizard-step {% if step2_complete %}complete{% elif step2_active %}active{% else %}locked{% endif %}">
+            <div class="compact-meta">Step 2</div>
+            <strong>Choose and submit</strong>
+            <div class="compact-meta">{% if step2_complete %}Done{% elif step2_active %}Do this now{% else %}Waiting for Step 1{% endif %}</div>
+          </div>
+          <div class="wizard-step {% if latest_receipt_hash %}active{% else %}locked{% endif %}">
+            <div class="compact-meta">Step 3</div>
+            <strong>Check my vote</strong>
+            <div class="compact-meta">{% if latest_receipt_hash %}Ready now{% else %}After voting{% endif %}</div>
+          </div>
+        </div>
+        {% else %}
+        <div class="action-summary">
+          <div class="action-pill">
+            <div class="compact-meta">Scope</div>
+            <strong>Inspection only</strong>
+          </div>
+          <div class="action-pill">
+            <div class="compact-meta">Best next page</div>
+            <strong>{% if role == 'admin' %}Designer or Audit{% else %}Research or Audit{% endif %}</strong>
+          </div>
+          <div class="action-pill">
+            <div class="compact-meta">Verification</div>
+            <strong>{% if latest_receipt_hash %}Receipt available{% else %}Use Verify page{% endif %}</strong>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if role == 'voter' and (latest_receipt_hash or has_voted) %}
+        <div class="vote-record-card">
+          <div>
+            <div class="compact-meta">Vote status</div>
+            <strong>Your vote is saved and ready for verification.</strong>
+          </div>
+          {% if latest_receipt_hash %}
+          <div>
+            <div class="compact-meta">Saved receipt</div>
+            <div class="mono">{{ latest_receipt_hash }}</div>
+          </div>
+          {% endif %}
+          <div class="primary-actions">
+            <a href="{{ url_for('verify_vote') }}"><button type="button">Check My Vote</button></a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      {% if role == 'voter' and not has_voted %}
+      <div class="focus-banner" style="margin-top: 16px;">
+        {% if token_ready %}
+        <strong>Next step: choose one option and submit your vote.</strong>
+        <div class="compact-meta">Your secure ballot is ready. Move to Step 2 below.</div>
+        {% else %}
+        <strong>Next step: start voting securely.</strong>
+        <div class="compact-meta">Complete Step 1 once to unlock the voting options.</div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {% if active_election and active_election.profile %}
+      <details class="disclosure" style="margin-top: 16px;">
+        <summary>Election profile and safeguards</summary>
+        <div class="disclosure-body">
+          <div class="status-note ok" style="margin-top: 0;">
+            Security profile: <strong>{{ active_election.profile.label }}</strong> |
+            Confidentiality: <strong>{{ active_election.confidentiality_level|replace('_', ' ')|title }}</strong>
+          </div>
+          <div class="compact-meta" style="margin-top: 10px;">{{ active_election.profile.description }}</div>
+          <div class="status-note ok" style="margin-top: 12px;">
+            <strong>Why this profile:</strong> {{ active_election.profile.plain_language_rationale }}
+          </div>
+          <div class="profile-score-grid">
+            <div class="compact-card">
+              <div class="compact-meta">Security</div>
+              <p class="metric">{{ active_election.security_score }}</p>
+            </div>
+            <div class="compact-card">
+              <div class="compact-meta">Privacy</div>
+              <p class="metric">{{ active_election.privacy_score }}</p>
+            </div>
+            <div class="compact-card">
+              <div class="compact-meta">Transparency</div>
+              <p class="metric">{{ active_election.transparency_score }}</p>
+            </div>
+            <div class="compact-card">
+              <div class="compact-meta">Scalability</div>
+              <p class="metric">{{ active_election.scalability_score }}</p>
+            </div>
+          </div>
+          <div class="status-grid" style="margin-top: 16px;">
+            <div class="compact-card">
+              <div class="compact-meta">Enabled protections</div>
+              {% for feature in active_election.profile.enabled_features %}
+              <div>{{ feature }}</div>
+              {% endfor %}
+            </div>
+            <div class="compact-card">
+              <div class="compact-meta">Recommended use cases</div>
+              {% for item in active_election.profile.recommended_use_cases %}
+              <div>{{ item }}</div>
+              {% endfor %}
+            </div>
+            <div class="compact-card">
+              <div class="compact-meta">Current limits</div>
+              {% for feature in active_election.profile.missing_features %}
+              <div>{{ feature }}</div>
+              {% endfor %}
+            </div>
+            <div class="compact-card">
+              <div class="compact-meta">Not recommended for</div>
+              {% for item in active_election.profile.not_recommended_for %}
+              <div>{{ item }}</div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </details>
+      {% endif %}
+    </div>
+
+    {% set is_voter_flow = role == 'voter' %}
+    {% set step1_active = is_voter_flow and not token_ready and not has_voted %}
+    {% set step1_complete = token_ready or has_voted %}
+    {% set step2_active = is_voter_flow and token_ready and not has_voted %}
+    {% set step2_complete = has_voted %}
+    {% set step2_locked = is_voter_flow and not token_ready and not has_voted %}
+
+    {% if role != 'voter' or step1_active or (token_ready and not has_voted) %}
+    <div class="step-card {% if step1_active %}active-step{% elif step1_complete %}complete-step{% endif %}">
+      <p class="step-label">Step 1</p>
+      <h3 class="step-title">Start voting securely</h3>
+      <p class="step-copy">Press once to begin the secure voting process for this session.</p>
+      {% if chain_status.valid %}
+        <div class="status-note ok">System is available and ready.</div>
+      {% else %}
+        <div class="status-note error">Blockchain invalid or node unavailable.</div>
+      {% endif %}
+      {% if active_election %}
+        <div class="compact-meta" style="margin-top: 12px;">Active election: {{ active_election.name }}</div>
+      {% endif %}
+      {% if role != 'voter' %}
+        <div class="status-note warn" style="margin-top: 12px;">Token issuance is disabled for non-voter accounts.</div>
+      {% elif has_voted %}
+        <div class="status-note ok" style="margin-top: 12px;">A vote is already recorded for this voter identity.</div>
+      {% elif token_ready %}
+        <div class="status-note ok" style="margin-top: 12px;">Preparation complete. You can vote now.</div>
+      {% else %}
+        <div class="status-note warn" style="margin-top: 12px;">Preparation not completed yet.</div>
+      {% endif %}
+      <div class="friendly-note">This step protects your identity before the vote is submitted.</div>
+      <form action="/issue_token" method="post" style="margin-top: 14px;">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+        <input type="submit" value="Start Voting Securely" {% if has_voted or role != 'voter' or token_ready %}disabled{% endif %}>
+      </form>
+      <div class="step-guidance">
+        {% if role == 'voter' and not has_voted and not token_ready %}
+        <div class="compact-meta">After this, the voting options below will unlock.</div>
+        {% elif role == 'voter' and token_ready and not has_voted %}
+        <div class="compact-meta">This step is already complete.</div>
+        {% endif %}
+      </div>
+    </div>
+    {% elif role == 'voter' and has_voted %}
+    <details class="disclosure">
+      <summary>Step 1 completed</summary>
+      <div class="disclosure-body">
+        <div class="status-note ok" style="margin-top: 0;">Secure ballot preparation was completed earlier for this vote.</div>
+      </div>
+    </details>
+    {% endif %}
+
+    {% if role != 'voter' or step2_active or has_voted %}
+    <div class="step-card {% if step2_active %}active-step{% elif step2_complete %}complete-step{% elif step2_locked %}locked-step{% endif %}">
+      <p class="step-label">Step 2</p>
+      <h3 class="step-title">Choose and submit your vote</h3>
+      <p class="step-copy">Select one option and send your vote.</p>
+      <p class="choice-hint">
+        {% if has_voted %}
+        Voting is complete for this account.
+        {% elif role != 'voter' %}
+        Voting is disabled for this account type.
+        {% elif not token_ready %}
+        Complete Step 1 first to unlock the vote.
+        {% else %}
+        Only one option can be selected.
+        {% endif %}
+      </p>
+      <form action="/submit" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+        <div class="vote-options">
+          {% for political_partie in political_parties %}
+          <label class="option-tile">
+            <input type="radio" name="party" value="{{ political_partie }}" {% if loop.first %}checked{% endif %} {% if has_voted or role != 'voter' or not token_ready %}disabled{% endif %}>
+            <span>{{ political_partie }}</span>
+          </label>
+          {% endfor %}
+        </div>
+        <input type="submit" value="Submit Vote" {% if has_voted or role != 'voter' or not token_ready %}disabled{% endif %}>
+      </form>
+      {% if has_voted %}
+      <div class="friendly-note">Vote sent. Continue to receipt check.</div>
+      {% elif step2_locked %}
+      <div class="friendly-note">This step unlocks after secure ballot preparation.</div>
+      {% else %}
+      <div class="friendly-note">After submission you can confirm the result with your receipt.</div>
+      {% endif %}
+    </div>
+    {% elif role == 'voter' and step2_locked %}
+    <details class="disclosure">
+      <summary>Step 2 will unlock after Step 1</summary>
+      <div class="disclosure-body">
+        <div class="compact-meta" style="margin-top: 0;">Finish secure ballot preparation first. The voting choices will then unlock automatically.</div>
+      </div>
+    </details>
+    {% endif %}
+
+    <details class="disclosure" {% if has_voted %}open{% endif %}>
+      <summary>Step 3: Check your receipt</summary>
+      <div class="disclosure-body">
+        {% if latest_receipt_hash %}
+        <div class="verify-focus-card" style="margin-top: 0; margin-bottom: 14px;">
+          <div>
+            <div class="compact-meta">Ready for verification</div>
+            <strong>Your vote has been saved. Check it now.</strong>
+          </div>
+          <div class="mono">{{ latest_receipt_hash }}</div>
+          <div class="primary-actions">
+            <a href="{{ url_for('verify_vote') }}"><button type="button">Check My Vote</button></a>
+          </div>
+        </div>
+        {% endif %}
+        <p class="compact-meta" style="margin-top: 0;">
+          {% if latest_receipt_hash %}
+          Your receipt is ready. Use it on the verification page.
+          {% else %}
+          Your receipt will appear here after you submit the vote.
+          {% endif %}
+        </p>
+        <div class="status-grid" style="margin-top: 14px;">
+          <div class="compact-card">
+            <div class="compact-meta">Current receipt</div>
+            <div class="mono">{{ latest_receipt_hash or 'No receipt issued yet' }}</div>
+          </div>
+          <div class="compact-card">
+            <div class="compact-meta">Next action</div>
+            <div>{% if latest_receipt_hash %}Open Verify Receipt{% else %}Finish Step 2 first{% endif %}</div>
+          </div>
+        </div>
+        <div class="inline-actions" style="margin-top: 12px;">
+          <a href="{{ url_for('verify_vote') }}"><button type="button">Open Verify Receipt</button></a>
+        </div>
+      </div>
+    </details>
+
+    <details class="disclosure">
+      <summary>{% if role == 'voter' %}Advanced details{% else %}Recent ballot activity{% endif %}</summary>
+      <div class="disclosure-body">
+        {% if role == 'voter' %}
+        <p class="compact-meta" style="margin-top: 0;">Open this only if you want protocol details or recent chain entries.</p>
+        <div class="flow-strip" style="margin-top: 0;">
+          <div class="flow-node">
+            <div class="compact-meta">1. Authenticate</div>
+            <strong>Voter ID + PIN</strong>
+          </div>
+          <div class="flow-node">
+            <div class="compact-meta">2. Blind token</div>
+            <strong>Anonymous right to vote</strong>
+          </div>
+          <div class="flow-node">
+            <div class="compact-meta">3. Encrypted ballot</div>
+            <strong>Protected submission</strong>
+          </div>
+          <div class="flow-node">
+            <div class="compact-meta">4. Verification</div>
+            <strong>Receipt + public tally</strong>
+          </div>
+        </div>
+        <div class="recent-grid" style="margin-top: 14px;">
+          {% for post in recent_posts %}
+          <div class="record-card {% if post._status == 'pending' %}pending{% endif %}">
+            <h4 class="record-title">{{ post.party }}</h4>
+            <p class="record-meta">{{ readable_time(post.timestamp) }}{% if post._status == 'pending' %} | pending{% endif %}</p>
+            <p class="record-meta">Reference</p>
+            <div class="mono">{{ post.voter_id }}</div>
+            <p class="record-meta" style="margin-top: 10px;">Receipt / signature</p>
+            <div class="mono">{{ post.vote_signature }}</div>
+          </div>
+          {% else %}
+          <div class="compact-card">No entries available yet.</div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="compact-meta" style="margin-top: 0;">Open for recent chain and pending entries.</p>
+        <div class="recent-grid">
+          {% for post in recent_posts %}
+          <div class="record-card {% if post._status == 'pending' %}pending{% endif %}">
+            <h4 class="record-title">{{ post.party }}</h4>
+            <p class="record-meta">{{ readable_time(post.timestamp) }}{% if post._status == 'pending' %} | pending{% endif %}</p>
+            <p class="record-meta">Reference</p>
+            <div class="mono">{{ post.voter_id }}</div>
+            <p class="record-meta" style="margin-top: 10px;">Receipt / signature</p>
+            <div class="mono">{{ post.vote_signature }}</div>
+          </div>
+          {% else %}
+          <div class="compact-card">No entries available yet.</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </details>
+  </div>
+
+  {% if role != 'voter' %}
+  <div class="sidebar-stack">
+    <div class="panel panel-strong">
+      {% if role == 'auditor' %}
+      <p class="eyebrow">Auditor Focus</p>
+      <h3 class="section-title">Inspection summary</h3>
+      <div class="status-note warn">Inspect-only session. Focus on research, audit evidence, and published tally data.</div>
+      <div class="sidebar-stack" style="margin-top: 14px;">
+        <div class="compact-card">
+          <div class="compact-meta">Chain status</div>
+          <strong>{{ 'Valid' if chain_status.valid else 'Unavailable' }}</strong>
+        </div>
+        <div class="compact-card">
+          <div class="compact-meta">Homomorphic tally</div>
+          <strong>{{ 'Available' if homomorphic_results and homomorphic_results.ballot_count else 'Pending' }}</strong>
+        </div>
+        <div class="compact-card">
+          <div class="compact-meta">Encrypted ballots</div>
+          <strong>{{ homomorphic_results.ballot_count if homomorphic_results else 0 }}</strong>
+        </div>
+      </div>
+      {% elif role == 'admin' %}
+      <p class="eyebrow">Admin Focus</p>
+      <h3 class="section-title">Election control</h3>
+      <div class="status-note warn">Management session. Use this area for election lifecycle, profile review, and audit access.</div>
+      <div class="sidebar-stack" style="margin-top: 14px;">
+        <div class="compact-card">
+          <div class="compact-meta">Active election</div>
+          <strong>{{ active_election.name if active_election else 'None' }}</strong>
+        </div>
+        <div class="compact-card">
+          <div class="compact-meta">Protection profile</div>
+          <strong>{{ active_election.profile.label if active_election and active_election.profile else 'Unavailable' }}</strong>
+        </div>
+        <div class="compact-card">
+          <div class="compact-meta">Published tally</div>
+          <strong>{{ 'Available' if homomorphic_results and homomorphic_results.ballot_count else 'Pending' }}</strong>
+        </div>
+      </div>
+      {% else %}
+      <p class="eyebrow">Quick Status</p>
+      <h3 class="section-title">What to do next</h3>
+      <div class="status-note warn">Inspect-only session. Use the research or audit views.</div>
+      <div class="sidebar-stack" style="margin-top: 14px;">
+        <div class="compact-card">
+          <div class="compact-meta">Receipt verification</div>
+          <strong>{% if receipt_verification and receipt_verification.found %}{{ receipt_verification.status }}{% elif latest_receipt_hash %}Stored locally{% else %}No receipt yet{% endif %}</strong>
+        </div>
+        <div class="compact-card">
+          <div class="compact-meta">Homomorphic tally agreement</div>
+          <strong>{{ 'Available' if homomorphic_results and homomorphic_results.ballot_count else 'Pending' }}</strong>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="panel">
+      <p class="eyebrow">
+        {% if role == 'auditor' %}
+        Auditor Links
+        {% elif role == 'admin' %}
+        Admin Links
+        {% else %}
+        Helpful Links
+        {% endif %}
+      </p>
+      <div class="inline-actions">
+        {% if role == 'admin' %}
+        <a href="{{ url_for('election_designer') }}"><button type="button">Designer</button></a>
+        {% endif %}
+        {% if role == 'auditor' %}
+        <a href="{{ url_for('verify_vote') }}"><button type="button">Verify Receipt</button></a>
+        {% endif %}
+        {% if role != 'voter' %}
+        <a href="{{ url_for('research_dashboard') }}"><button type="button">Research</button></a>
+        <a href="{{ url_for('security_model') }}"><button type="button">Security Model</button></a>
+        {% if role in ['admin', 'auditor'] %}
+        <a href="{{ url_for('audit_dashboard') }}"><button type="button">Audit</button></a>
+        {% endif %}
+        {% endif %}
+      </div>
+    </div>
+
+    <details class="disclosure">
+      <summary>
+        {% if role == 'auditor' %}
+        Published system data
+        {% elif role == 'admin' %}
+        System data and endpoints
+        {% elif role == 'voter' %}
+        Advanced information
+        {% else %}
+        System facts and JSON endpoints
+        {% endif %}
+      </summary>
+      <div class="disclosure-body">
+        <div class="system-facts">
+          <div class="compact-card">
+            <p class="metric">{{ chain_status.length }}</p>
+            <p class="metric-label">Blockchain length</p>
+          </div>
+          <div class="compact-card">
+            <p class="metric">{{ homomorphic_results.ballot_count if homomorphic_results else 0 }}</p>
+            <p class="metric-label">Confirmed encrypted ballots</p>
+          </div>
+          <div class="compact-card">
+            <p class="metric">{{ political_parties|length }}</p>
+            <p class="metric-label">Election options</p>
+          </div>
+        </div>
+        {% if role == 'voter' %}
+        <div class="inline-actions" style="margin-top: 10px;">
+          <a href="{{ url_for('research_dashboard') }}"><button type="button">Research</button></a>
+          <a href="{{ url_for('security_model') }}"><button type="button">Security Model</button></a>
+        </div>
+        {% else %}
+        <div class="inline-actions" style="margin-top: 10px;">
+          <a href="{{node_address}}/chain" target="_blank"><button type="button">View Chain</button></a>
+          <a href="{{node_address}}/bulletin_board" target="_blank"><button type="button">Bulletin Board</button></a>
+          <a href="{{node_address}}/homomorphic_results" target="_blank"><button type="button">Homomorphic Tally</button></a>
+        </div>
+        {% endif %}
+      </div>
+    </details>
+
+    <details class="disclosure">
+      <summary>
+        {% if role == 'auditor' %}
+        Election count comparison
+        {% elif role == 'admin' %}
+        Election tally comparison
+        {% else %}
+        Election summary and tally comparison
+        {% endif %}
+      </summary>
+      <div class="disclosure-body">
+        <p class="compact-meta" style="margin-top: 0;">Compare the plain count with the homomorphic tally.</p>
+        <div class="table-shell">
+          <table class="summary-table">
+            <tr>
+              <th>Option</th>
+              <th>Count</th>
+              <th>Homomorphic</th>
+            </tr>
+            {% for p in political_parties %}
+            <tr>
+              <td>{{ p }}</td>
+              <td>{{ vote_results.get(p, 0) }}</td>
+              <td>{{ homomorphic_results.totals.get(p, 0) if homomorphic_results and homomorphic_results.totals else 0 }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+    </details>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
