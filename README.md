@@ -4,6 +4,11 @@ This repository contains the software prototype, benchmark scripts, synthetic ex
 
 The prototype is intended for research reproducibility and experimental evaluation. It is not a production election system and must not be interpreted as ready for governmental or large-scale deployment.
 
+## Archive
+
+- GitHub repository: https://github.com/Tolegen95/cryptographic-blockchain-evoting-prototype
+- Zenodo DOI: https://doi.org/10.5281/zenodo.19563151
+
 ## Overview
 
 The project implements a local electronic voting research platform that combines:
@@ -44,7 +49,7 @@ The files in `data/` contain synthetic prototype accounts and election scenarios
 Suggested manuscript statement:
 
 ```text
-Data Availability Statement: The data presented in this study are available in the article and in this repository. The software prototype, benchmark scripts, synthetic experimental scenarios, and generated benchmark results are included in the repository. No real personal voter data were used in this study.
+Data Availability Statement: The data presented in this study are available in the article, in the GitHub repository (https://github.com/Tolegen95/cryptographic-blockchain-evoting-prototype), and in the Zenodo archive (https://doi.org/10.5281/zenodo.19563151). The software prototype, benchmark scripts, synthetic experimental scenarios, and generated benchmark results are included in the repository. No real personal voter data were used in this study.
 ```
 
 ## Installation
