@@ -9,6 +9,15 @@ The prototype is intended for research reproducibility and experimental evaluati
 - GitHub repository: https://github.com/Tolegen95/cryptographic-blockchain-evoting-prototype
 - Zenodo DOI: https://doi.org/10.5281/zenodo.19563151
 
+## Changelog
+
+### v1.1.0
+
+- Ballot validity proofs now use a Cramer–Damgård–Schoenmakers (CDS) disjunctive proof for each component `v_i ∈ {0, 1}`. The previous proof format carried a `plaintext_bit` field that disclosed the encrypted choice; it has been removed.
+- Fiat–Shamir challenges and responses are computed modulo the prime subgroup order `q = (p − 1) / 2` of RFC 3526 group 14 (generator `g = 2`), with a domain-separation tag for bit proofs.
+- New tests: proofs do not reveal the plaintext, an encryption of 2 cannot be proven to be 0 or 1, and a proof is bound to its ciphertext.
+- `benchmarks/output/benchmark_results.csv` was re-measured with the CDS proofs (3 options, 2-of-3 authorities). Ballot acceptance is about 0.97 s per ballot; under identical conditions the previous single-branch proof took about 0.50 s. The earlier results are kept in `benchmarks/output/benchmark_results_before_cds.csv`.
+
 ## Overview
 
 The project implements a local electronic voting research platform that combines:
@@ -103,6 +112,7 @@ python3 benchmarks/run_profile_matrix.py
 Important generated files include:
 
 - `benchmarks/output/benchmark_results.csv`
+- `benchmarks/output/benchmark_results_before_cds.csv`
 - `benchmarks/output/benchmark_comparison.csv`
 - `benchmarks/output/benchmark_projection.csv`
 - `benchmarks/output/profile_matrix_results.csv`

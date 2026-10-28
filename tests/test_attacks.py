@@ -163,7 +163,7 @@ class AttackScenarioTests(unittest.TestCase):
         )
         receipt_hash = crypto_utils.ballot_receipt_hash(encrypted_ballot)
         homomorphic_ballot = crypto_utils.build_homomorphic_ballot(self.election["options"], "Republican Party")
-        homomorphic_ballot["validity_proofs"][0]["challenge"] = "0"
+        homomorphic_ballot["validity_proofs"][0]["e0"] = "0"
 
         response = self.client.post(
             "/cast_ballot",
@@ -179,6 +179,27 @@ class AttackScenarioTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.get_json()["error"], "Homomorphic ballot proof mismatch")
+
+    def test_bit_proof_does_not_reveal_plaintext(self):
+        homomorphic_ballot = crypto_utils.build_homomorphic_ballot(self.election["options"], "Republican Party")
+
+        for ciphertext, proof in zip(homomorphic_ballot["ciphertexts"], homomorphic_ballot["validity_proofs"]):
+            self.assertEqual(set(proof), {"a0", "b0", "a1", "b1", "e0", "e1", "z0", "z1"})
+            self.assertTrue(crypto_utils.verify_ciphertext_bit_proof(ciphertext, proof))
+
+    def test_bit_proof_rejects_ciphertext_of_two(self):
+        ciphertext, randomness = crypto_utils._encrypt_homomorphic_count_with_randomness(2)
+        for claimed in (0, 1):
+            forged = crypto_utils.build_ciphertext_bit_proof(ciphertext, claimed, randomness)
+            self.assertFalse(crypto_utils.verify_ciphertext_bit_proof(ciphertext, forged))
+
+    def test_bit_proof_is_bound_to_its_ciphertext(self):
+        first = crypto_utils.build_homomorphic_ballot(self.election["options"], "Democratic Party")
+        second = crypto_utils.build_homomorphic_ballot(self.election["options"], "Democratic Party")
+
+        self.assertFalse(
+            crypto_utils.verify_ciphertext_bit_proof(second["ciphertexts"][0], first["validity_proofs"][0])
+        )
 
     def test_tampered_threshold_proof_is_detected(self):
         token_message = "v" * 64
