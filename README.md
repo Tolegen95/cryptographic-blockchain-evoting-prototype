@@ -7,7 +7,9 @@ The prototype is intended for research reproducibility and experimental evaluati
 ## Archive
 
 - GitHub repository: https://github.com/Tolegen95/cryptographic-blockchain-evoting-prototype
-- Zenodo DOI: https://doi.org/10.5281/zenodo.19563151
+- Zenodo DOI (all versions, resolves to the latest): https://doi.org/10.5281/zenodo.19563150
+- Zenodo DOI, v1.1.0: https://doi.org/10.5281/zenodo.23722622
+- Zenodo DOI, v1.0.0: https://doi.org/10.5281/zenodo.19563151
 
 ## Changelog
 
