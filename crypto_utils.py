@@ -25,7 +25,9 @@ HOMOMORPHIC_PRIME = int(
     16,
 )
 HOMOMORPHIC_GENERATOR = 2
-TALLY_GROUP_ORDER = HOMOMORPHIC_PRIME - 1
+# RFC 3526 group 14 is a safe prime p = 2q + 1 and g = 2 generates the subgroup of prime order q.
+TALLY_GROUP_ORDER = (HOMOMORPHIC_PRIME - 1) // 2
+BIT_PROOF_DOMAIN = "evoting/elgamal-bit-cds/v1"
 
 
 def _ensure_parent_dir(path):
@@ -394,48 +396,113 @@ def _chaum_pedersen_verify(base1, base2, target1, target2, proof):
     return lhs1 == rhs1 and lhs2 == rhs2
 
 
+def _bit_branch_target(c2, branch):
+    # Branch b claims c2 = y^r * g^b, so the Chaum-Pedersen target is c2 / g^b.
+    if branch == 0:
+        return c2
+    return (c2 * _mod_inverse(HOMOMORPHIC_GENERATOR, HOMOMORPHIC_PRIME)) % HOMOMORPHIC_PRIME
+
+
+def _bit_proof_challenge(public_key, c1, c2, commitments):
+    return _hash_ints_to_scalar(
+        BIT_PROOF_DOMAIN,
+        HOMOMORPHIC_GENERATOR,
+        public_key,
+        c1,
+        c2,
+        *commitments,
+    )
+
+
 def build_ciphertext_bit_proof(ciphertext, value, randomness):
+    """Cramer-Damgard-Schoenmakers OR-proof that (c1, c2) encrypts 0 or 1 without revealing which."""
     if value not in {0, 1}:
         raise ValueError("Bit proof only supports 0 or 1")
 
     public_key = get_tally_public_key()
     c1 = int(ciphertext["c1"], 16)
     c2 = int(ciphertext["c2"], 16)
-    adjusted_c2 = c2
-    if value == 1:
-        adjusted_c2 = (c2 * _mod_inverse(HOMOMORPHIC_GENERATOR, HOMOMORPHIC_PRIME)) % HOMOMORPHIC_PRIME
+    witness = randomness % TALLY_GROUP_ORDER
+    fake = 1 - value
 
-    proof = _chaum_pedersen_prove(
-        HOMOMORPHIC_GENERATOR,
-        public_key,
-        c1,
-        adjusted_c2,
-        randomness,
-    )
-    proof["plaintext_bit"] = value
-    return proof
+    # Simulated transcript for the false branch: pick challenge and response, solve for commitments.
+    fake_challenge = secrets.randbelow(TALLY_GROUP_ORDER)
+    fake_response = secrets.randbelow(TALLY_GROUP_ORDER)
+    fake_target = _bit_branch_target(c2, fake)
+    fake_a = (
+        pow(HOMOMORPHIC_GENERATOR, fake_response, HOMOMORPHIC_PRIME) *
+        _mod_inverse(pow(c1, fake_challenge, HOMOMORPHIC_PRIME), HOMOMORPHIC_PRIME)
+    ) % HOMOMORPHIC_PRIME
+    fake_b = (
+        pow(public_key, fake_response, HOMOMORPHIC_PRIME) *
+        _mod_inverse(pow(fake_target, fake_challenge, HOMOMORPHIC_PRIME), HOMOMORPHIC_PRIME)
+    ) % HOMOMORPHIC_PRIME
+
+    # Honest commitment for the true branch.
+    nonce = secrets.randbelow(TALLY_GROUP_ORDER - 1) + 1
+    real_a = pow(HOMOMORPHIC_GENERATOR, nonce, HOMOMORPHIC_PRIME)
+    real_b = pow(public_key, nonce, HOMOMORPHIC_PRIME)
+
+    a = {value: real_a, fake: fake_a}
+    b = {value: real_b, fake: fake_b}
+    challenge = _bit_proof_challenge(public_key, c1, c2, [a[0], b[0], a[1], b[1]])
+    real_challenge = (challenge - fake_challenge) % TALLY_GROUP_ORDER
+    real_response = (nonce + real_challenge * witness) % TALLY_GROUP_ORDER
+
+    e = {value: real_challenge, fake: fake_challenge}
+    z = {value: real_response, fake: fake_response}
+    return {
+        "a0": format(a[0], "x"),
+        "b0": format(b[0], "x"),
+        "a1": format(a[1], "x"),
+        "b1": format(b[1], "x"),
+        "e0": format(e[0], "x"),
+        "e1": format(e[1], "x"),
+        "z0": format(z[0], "x"),
+        "z1": format(z[1], "x"),
+    }
 
 
 def verify_ciphertext_bit_proof(ciphertext, proof):
     if not isinstance(proof, dict):
         return False
-    if proof.get("plaintext_bit") not in {0, 1}:
+    try:
+        c1 = int(ciphertext["c1"], 16)
+        c2 = int(ciphertext["c2"], 16)
+        values = {
+            key: int(proof[key], 16)
+            for key in ("a0", "b0", "a1", "b1", "e0", "e1", "z0", "z1")
+        }
+    except (KeyError, TypeError, ValueError):
+        return False
+
+    for key in ("a0", "b0", "a1", "b1"):
+        if not 1 <= values[key] < HOMOMORPHIC_PRIME:
+            return False
+    if not (1 <= c1 < HOMOMORPHIC_PRIME and 1 <= c2 < HOMOMORPHIC_PRIME):
         return False
 
     public_key = get_tally_public_key()
-    c1 = int(ciphertext["c1"], 16)
-    c2 = int(ciphertext["c2"], 16)
-    adjusted_c2 = c2
-    if proof["plaintext_bit"] == 1:
-        adjusted_c2 = (c2 * _mod_inverse(HOMOMORPHIC_GENERATOR, HOMOMORPHIC_PRIME)) % HOMOMORPHIC_PRIME
-
-    return _chaum_pedersen_verify(
-        HOMOMORPHIC_GENERATOR,
+    challenge = _bit_proof_challenge(
         public_key,
         c1,
-        adjusted_c2,
-        proof,
+        c2,
+        [values["a0"], values["b0"], values["a1"], values["b1"]],
     )
+    if (values["e0"] + values["e1"]) % TALLY_GROUP_ORDER != challenge:
+        return False
+
+    for branch in (0, 1):
+        e_value = values["e{}".format(branch)] % TALLY_GROUP_ORDER
+        z_value = values["z{}".format(branch)] % TALLY_GROUP_ORDER
+        target = _bit_branch_target(c2, branch)
+        lhs1 = pow(HOMOMORPHIC_GENERATOR, z_value, HOMOMORPHIC_PRIME)
+        rhs1 = (values["a{}".format(branch)] * pow(c1, e_value, HOMOMORPHIC_PRIME)) % HOMOMORPHIC_PRIME
+        lhs2 = pow(public_key, z_value, HOMOMORPHIC_PRIME)
+        rhs2 = (values["b{}".format(branch)] * pow(target, e_value, HOMOMORPHIC_PRIME)) % HOMOMORPHIC_PRIME
+        if lhs1 != rhs1 or lhs2 != rhs2:
+            return False
+    return True
 
 
 def build_ballot_sum_proof(ciphertexts, randomness_values):
